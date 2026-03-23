@@ -6,7 +6,7 @@
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/d811bc1d-6e8e-483a-b908-87505913cfc7" alt="Admin Paneli" width="48%" />
-  <img src="https://github.com/user-attachments/assets/f35e0305-ce62-4fa4-badf-1a93f1da1bc5" alt="Tablo Görünümü" width="48%" />
+  <img src="https://github.com/user-attachments/assets/495b02e9-5a2b-429e-91a2-d12d5431b15f" alt="Tablo Görünümü" width="48%" />
 </p>
 
 ---
