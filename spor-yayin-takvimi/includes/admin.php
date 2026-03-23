@@ -28,6 +28,12 @@ function syt_settings_init() {
         'default' => '',
     ));
 
+    register_setting('syt_settings', 'syt_categories', array(
+        'type' => 'string',
+        'sanitize_callback' => 'syt_sanitize_categories',
+        'default' => '',
+    ));
+
     register_setting('syt_settings', 'syt_enable_search', array(
         'type' => 'boolean',
         'sanitize_callback' => 'syt_sanitize_checkbox',
@@ -58,6 +64,14 @@ function syt_settings_init() {
     );
 
     add_settings_field(
+        'syt_categories',
+        'Kategori listesi',
+        'syt_categories_field',
+        'syt_settings',
+        'syt_settings_section'
+    );
+
+    add_settings_field(
         'syt_enable_search',
         'Arama filtresi',
         'syt_enable_search_field',
@@ -71,6 +85,29 @@ function syt_sanitize_checkbox($value) {
     return $value ? 1 : 0;
 }
 
+function syt_sanitize_categories($value) {
+    if (!is_string($value)) {
+        return '';
+    }
+
+    $value = wp_unslash($value);
+    $parts = preg_split('/\r\n|\r|\n|,|;/', $value);
+    $clean = array();
+
+    foreach ($parts as $part) {
+        $label = sanitize_text_field(trim($part));
+        if ($label !== '') {
+            $clean[] = $label;
+        }
+    }
+
+    if (empty($clean)) {
+        $clean = syt_default_categories();
+    }
+
+    return implode("\n", $clean);
+}
+
 function syt_cache_duration_field() {
     $value = (int) get_option('syt_cache_duration', 3600);
     echo '<input type="number" min="60" step="60" name="syt_cache_duration" value="' . esc_attr($value) . '" />';
@@ -80,6 +117,16 @@ function syt_default_sport_field() {
     $value = get_option('syt_default_sport', '');
     echo '<input type="text" name="syt_default_sport" value="' . esc_attr($value) . '" placeholder="Örn: Futbol" />';
     echo '<p class="description">Boş bırakılırsa varsayılan filtre "Tümü" olur.</p>';
+}
+
+function syt_categories_field() {
+    $value = get_option('syt_categories', '');
+    if ($value === '') {
+        $value = implode("\n", syt_default_categories());
+    }
+
+    echo '<textarea name="syt_categories" rows="5" cols="30" class="large-text code">' . esc_textarea($value) . '</textarea>';
+    echo '<p class="description">Her satıra bir kategori yazın. Önerilen: Futbol, Basketbol, Voleybol, Tenis. Filtrelerin çalışması için isimler veri kaynağındaki spor adlarıyla uyumlu olmalı.</p>';
 }
 
 function syt_enable_search_field() {

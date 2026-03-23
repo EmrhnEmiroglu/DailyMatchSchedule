@@ -30,6 +30,17 @@
         return slug || 'diger';
     }
 
+    function emojiForSlug(slug) {
+        var map = {
+            futbol: '⚽',
+            basketbol: '🏀',
+            voleybol: '🏐',
+            voelybol: '🏐',
+            tenis: '🎾'
+        };
+        return map[slug] || '';
+    }
+
     function isNoBroadcast(channel) {
         if (!channel) {
             return false;
@@ -42,9 +53,43 @@
         return $('<div>').text(text).html();
     }
 
-    function extractSports(matches) {
+    function normalizeCategories(categories, matches) {
+        var list = [];
+
+        if (Array.isArray(categories) && categories.length) {
+            categories.forEach(function (item) {
+                var label = '';
+                var slug = '';
+                var emoji = '';
+
+                if (typeof item === 'string') {
+                    label = item;
+                } else if (item) {
+                    label = item.label || '';
+                    slug = item.slug || '';
+                    emoji = item.emoji || '';
+                }
+
+                label = String(label || '').trim();
+                if (!label) {
+                    return;
+                }
+
+                slug = slug || sportSlug(label);
+                emoji = emoji || emojiForSlug(slug);
+
+                list.push({
+                    label: label,
+                    slug: slug,
+                    emoji: emoji
+                });
+            });
+
+            return list;
+        }
+
         var map = {};
-        matches.forEach(function (match) {
+        (matches || []).forEach(function (match) {
             if (!match.sport) {
                 return;
             }
@@ -54,34 +99,21 @@
             }
             var slug = sportSlug(label);
             if (!map[slug]) {
-                map[slug] = label;
+                map[slug] = {
+                    label: label,
+                    slug: slug,
+                    emoji: emojiForSlug(slug)
+                };
             }
         });
 
-        return Object.keys(map).map(function (slug) {
-            return { slug: slug, label: map[slug] };
+        return Object.keys(map).map(function (key) {
+            return map[key];
         });
     }
 
-    function buildFilterButtons($wrap, matches, activeSport) {
-        var sports = extractSports(matches);
-        var ordered = [];
-
-        var futbol = sports.filter(function (item) {
-            return item.slug === 'futbol';
-        });
-        if (futbol.length) {
-            ordered.push(futbol[0]);
-            sports = sports.filter(function (item) {
-                return item.slug !== 'futbol';
-            });
-        }
-
-        sports.sort(function (a, b) {
-            return a.label.localeCompare(b.label, 'tr');
-        });
-
-        ordered = ordered.concat(sports);
+    function buildFilterButtons($wrap, categories, matches, activeSport) {
+        var ordered = normalizeCategories(categories, matches);
 
         if (activeSport !== 'all' && !ordered.some(function (item) { return item.slug === activeSport; })) {
             activeSport = 'all';
@@ -91,7 +123,8 @@
         html += '<button type="button" class="syt-filter-btn' + (activeSport === 'all' ? ' is-active' : '') + '" data-sport="all">Tümü</button>';
         ordered.forEach(function (item) {
             var active = activeSport === item.slug ? ' is-active' : '';
-            html += '<button type="button" class="syt-filter-btn' + active + '" data-sport="' + escapeHtml(item.slug) + '">' + escapeHtml(item.label) + '</button>';
+            var label = item.emoji ? item.emoji + ' ' + item.label : item.label;
+            html += '<button type="button" class="syt-filter-btn' + active + '" data-sport="' + escapeHtml(item.slug) + '">' + escapeHtml(label) + '</button>';
         });
 
         $wrap.find('.syt-filters').html(html);
@@ -132,22 +165,21 @@
             var rowspan = items.length;
 
             items.forEach(function (match, index) {
-                var $tr = $('<tr class="syt-row"></tr>').attr('data-sport', sportSlug(match.sport || ''));
+                var sportSlugValue = sportSlug(match.sport || '');
+                var $tr = $('<tr class="syt-row"></tr>').attr('data-sport', sportSlugValue);
 
                 if (index === 0) {
                     $tr.append('<td class="syt-time" rowspan="' + rowspan + '"><span class="syt-time-badge">' + escapeHtml(time) + '</span></td>');
                 }
 
-                var sportClass = 'sport-' + sportSlug(match.sport || '');
-                $tr.append('<td class="syt-sport"><span class="syt-sport-badge ' + sportClass + '">' + escapeHtml(match.sport || '') + '</span></td>');
+                var sportClass = 'sport-' + sportSlugValue;
+                var sportLabel = match.sport || '';
+                var emoji = emojiForSlug(sportSlugValue);
+                var sportText = emoji ? emoji + ' ' + sportLabel : sportLabel;
 
-                var matchHtml = '';
-                if (match.url) {
-                    matchHtml = '<a class="syt-match-link" href="' + escapeHtml(match.url) + '" target="_blank" rel="noopener">' + escapeHtml(match.match || '') + '</a>';
-                } else {
-                    matchHtml = escapeHtml(match.match || '');
-                }
-                $tr.append('<td class="syt-match">' + matchHtml + '</td>');
+                $tr.append('<td class="syt-sport"><span class="syt-sport-badge ' + sportClass + '">' + escapeHtml(sportText) + '</span></td>');
+
+                $tr.append('<td class="syt-match">' + escapeHtml(match.match || '') + '</td>');
 
                 $tr.append('<td class="syt-league">' + escapeHtml(match.league || '') + '</td>');
 
@@ -223,11 +255,12 @@
         var state = {
             date: data.date || $wrap.data('date'),
             matches: data.matches || [],
+            categories: data.categories || [],
             activeSport: data.activeSport || 'all',
             searchQuery: normalizeQuery(data.searchQuery || '')
         };
 
-        state.activeSport = buildFilterButtons($wrap, state.matches, state.activeSport);
+        state.activeSport = buildFilterButtons($wrap, state.categories, state.matches, state.activeSport);
         var filtered = applyFilters(state.matches, state.activeSport, state.searchQuery);
         renderMatches($wrap, filtered, getEmptyMessage(state));
 
@@ -278,7 +311,7 @@
                         state.date = newDate;
                         state.matches = response.data || [];
 
-                        state.activeSport = buildFilterButtons($wrap, state.matches, state.activeSport);
+                        state.activeSport = buildFilterButtons($wrap, state.categories, state.matches, state.activeSport);
                         var nextFiltered = applyFilters(state.matches, state.activeSport, state.searchQuery);
                         renderMatches($wrap, nextFiltered, getEmptyMessage(state));
                         setStatus($wrap, '');

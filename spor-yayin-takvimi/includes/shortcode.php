@@ -106,6 +106,57 @@ function syt_sport_slug($sport) {
     return $sport ? $sport : 'diger';
 }
 
+function syt_default_categories() {
+    return array('Futbol', 'Basketbol', 'Voleybol', 'Tenis');
+}
+
+function syt_get_categories() {
+    $raw = get_option('syt_categories', '');
+    if (!is_string($raw) || trim($raw) === '') {
+        return syt_default_categories();
+    }
+
+    $parts = preg_split('/\r\n|\r|\n|,|;/', $raw);
+    $labels = array();
+
+    foreach ($parts as $part) {
+        $label = trim($part);
+        if ($label !== '') {
+            $labels[] = $label;
+        }
+    }
+
+    return empty($labels) ? syt_default_categories() : $labels;
+}
+
+function syt_sport_emoji($sport_slug) {
+    $map = array(
+        'futbol' => '⚽',
+        'basketbol' => '🏀',
+        'voleybol' => '🏐',
+        'voelybol' => '🏐',
+        'tenis' => '🎾',
+    );
+
+    return isset($map[$sport_slug]) ? $map[$sport_slug] : '';
+}
+
+function syt_get_category_items() {
+    $categories = syt_get_categories();
+    $items = array();
+
+    foreach ($categories as $label) {
+        $slug = syt_sport_slug($label);
+        $items[] = array(
+            'label' => $label,
+            'slug' => $slug,
+            'emoji' => syt_sport_emoji($slug),
+        );
+    }
+
+    return $items;
+}
+
 function syt_is_no_broadcast($channel) {
     $normalized = syt_normalize_turkish($channel);
     $normalized = strtolower(trim($normalized));
@@ -136,13 +187,14 @@ function syt_render_matches_table($matches) {
 
         foreach ($items as $index => $match) {
             $sport = isset($match['sport']) ? trim($match['sport']) : '';
-            $sport_class = 'sport-' . syt_sport_slug($sport);
+            $sport_slug = syt_sport_slug($sport);
+            $sport_class = 'sport-' . $sport_slug;
+            $sport_emoji = syt_sport_emoji($sport_slug);
             $match_name = isset($match['match']) ? $match['match'] : '';
             $league = isset($match['league']) ? $match['league'] : '';
-            $url = isset($match['url']) ? $match['url'] : '';
             $channels = isset($match['channels']) ? (array) $match['channels'] : array();
 
-            $html .= '<tr class="syt-row" data-sport="' . esc_attr(syt_sport_slug($sport)) . '">';
+            $html .= '<tr class="syt-row" data-sport="' . esc_attr($sport_slug) . '">';
 
             if ($index === 0) {
                 $html .= '<td class="syt-time" rowspan="' . esc_attr($rowspan) . '">';
@@ -151,15 +203,12 @@ function syt_render_matches_table($matches) {
             }
 
             $html .= '<td class="syt-sport">';
-            $html .= '<span class="syt-sport-badge ' . esc_attr($sport_class) . '">' . esc_html($sport) . '</span>';
+            $badge_text = $sport_emoji ? $sport_emoji . ' ' . $sport : $sport;
+            $html .= '<span class="syt-sport-badge ' . esc_attr($sport_class) . '">' . esc_html($badge_text) . '</span>';
             $html .= '</td>';
 
             $html .= '<td class="syt-match">';
-            if (!empty($url)) {
-                $html .= '<a class="syt-match-link" href="' . esc_url($url) . '" target="_blank" rel="noopener">' . esc_html($match_name) . '</a>';
-            } else {
-                $html .= esc_html($match_name);
-            }
+            $html .= esc_html($match_name);
             $html .= '</td>';
 
             $html .= '<td class="syt-league">' . esc_html($league) . '</td>';
@@ -220,12 +269,15 @@ function syt_shortcode($atts) {
     $initial_sport = trim($initial_sport);
     $initial_sport_slug = $initial_sport === '' ? 'all' : syt_sport_slug($initial_sport);
 
+    $categories = syt_get_category_items();
+
     $inline_data = array(
         'date' => $date,
         'matches' => $matches,
         'activeSport' => $initial_sport_slug,
         'searchEnabled' => $search_enabled,
         'searchQuery' => '',
+        'categories' => $categories,
     );
 
     wp_add_inline_script(
@@ -237,19 +289,9 @@ function syt_shortcode($atts) {
     $today = syt_today_date();
     $tomorrow = syt_tomorrow_date();
 
-    $sports = syt_get_sports_from_matches($matches);
-
-    $buttons = array();
-    if (in_array('Futbol', $sports, true)) {
-        $buttons[] = 'Futbol';
-        $sports = array_values(array_diff($sports, array('Futbol')));
-    }
-    sort($sports, SORT_STRING | SORT_FLAG_CASE);
-    $buttons = array_merge($buttons, $sports);
-
     $button_slugs = array();
-    foreach ($buttons as $button_label) {
-        $button_slugs[] = syt_sport_slug($button_label);
+    foreach ($categories as $category) {
+        $button_slugs[] = $category['slug'];
     }
 
     $active_filter = $initial_sport_slug;
@@ -267,10 +309,15 @@ function syt_shortcode($atts) {
             </div>
             <div class="syt-filters">
                 <button type="button" class="syt-filter-btn <?php echo $active_filter === 'all' ? 'is-active' : ''; ?>" data-sport="all">Tümü</button>
-                <?php foreach ($buttons as $button) : ?>
-                    <?php $button_slug = syt_sport_slug($button); ?>
+                <?php foreach ($categories as $category) : ?>
+                    <?php
+                    $button_slug = $category['slug'];
+                    $button_label = $category['label'];
+                    $button_emoji = $category['emoji'];
+                    $button_text = $button_emoji ? $button_emoji . ' ' . $button_label : $button_label;
+                    ?>
                     <button type="button" class="syt-filter-btn <?php echo $active_filter === $button_slug ? 'is-active' : ''; ?>" data-sport="<?php echo esc_attr($button_slug); ?>">
-                        <?php echo esc_html($button); ?>
+                        <?php echo esc_html($button_text); ?>
                     </button>
                 <?php endforeach; ?>
             </div>
@@ -304,7 +351,6 @@ function syt_shortcode($atts) {
             </table>
         </div>
 
-        <div class="syt-source">Kaynak: <a href="https://www.sporekrani.com" target="_blank" rel="noopener">sporekrani.com</a></div>
     </div>
     <?php
 
