@@ -219,7 +219,7 @@ function syt_is_no_broadcast($channel) {
 
 function syt_render_matches_table($matches, $categories = array()) {
     if (empty($matches)) {
-        return '<tr class="syt-empty"><td colspan="5">Bu tarihte yayın bilgisi bulunamadı.</td></tr>';
+        return '<div class="syt-empty">Bu tarihte yayın bilgisi bulunamadı.</div>';
     }
 
     $matches = syt_sort_matches_by_time($matches);
@@ -237,37 +237,31 @@ function syt_render_matches_table($matches, $categories = array()) {
     $html = '';
 
     foreach ($groups as $time => $items) {
-        $rowspan = count($items);
+        $html .= '<div class="syt-group">';
+        $html .= '<div class="syt-time-col">';
+        $html .= '<span class="syt-time-icon">🕒</span>';
+        $html .= '<span class="syt-time-text">' . esc_html($time) . '</span>';
+        $html .= '</div>';
+        $html .= '<div class="syt-group-items">';
 
-        foreach ($items as $index => $match) {
+        foreach ($items as $match) {
             $sport = isset($match['sport']) ? trim($match['sport']) : '';
             $category_slug = syt_match_category_slug($sport, $categories);
-            $sport_class = 'sport-' . $category_slug;
             $sport_emoji = syt_sport_emoji($category_slug);
             $match_name = isset($match['match']) ? $match['match'] : '';
             $league = isset($match['league']) ? $match['league'] : '';
             $channels = isset($match['channels']) ? (array) $match['channels'] : array();
 
-            $html .= '<tr class="syt-row" data-sport="' . esc_attr($category_slug) . '">';
-
-            if ($index === 0) {
-                $html .= '<td class="syt-time" rowspan="' . esc_attr($rowspan) . '">';
-                $html .= '<span class="syt-time-badge">' . esc_html($time) . '</span>';
-                $html .= '</td>';
+            $html .= '<div class="syt-item syt-row" data-sport="' . esc_attr($category_slug) . '">';
+            $html .= '<div class="syt-item-icon">' . esc_html($sport_emoji ? $sport_emoji : '•') . '</div>';
+            $html .= '<div class="syt-item-content">';
+            $html .= '<div class="syt-item-title">' . esc_html($match_name) . '</div>';
+            if (!empty($league)) {
+                $html .= '<div class="syt-item-sub">' . esc_html(syt_display_league($league)) . '</div>';
             }
+            $html .= '</div>';
 
-            $html .= '<td class="syt-sport">';
-            $badge_text = $sport_emoji ? $sport_emoji . ' ' . $sport : $sport;
-            $html .= '<span class="syt-sport-badge ' . esc_attr($sport_class) . '">' . esc_html($badge_text) . '</span>';
-            $html .= '</td>';
-
-            $html .= '<td class="syt-match">';
-            $html .= esc_html($match_name);
-            $html .= '</td>';
-
-            $html .= '<td class="syt-league">' . esc_html(syt_display_league($league)) . '</td>';
-
-            $html .= '<td class="syt-channels">';
+            $html .= '<div class="syt-item-channels">';
             if (!empty($channels)) {
                 foreach ($channels as $channel) {
                     $classes = 'syt-channel-badge';
@@ -277,10 +271,13 @@ function syt_render_matches_table($matches, $categories = array()) {
                     $html .= '<span class="' . esc_attr($classes) . '">' . esc_html(syt_display_channel($channel)) . '</span>';
                 }
             }
-            $html .= '</td>';
-
-            $html .= '</tr>';
+            $html .= '</div>';
+            $html .= '<div class="syt-item-arrow" aria-hidden="true">›</div>';
+            $html .= '</div>';
         }
+
+        $html .= '</div>';
+        $html .= '</div>';
     }
 
     return $html;
@@ -388,21 +385,8 @@ function syt_shortcode($atts) {
             <?php endif; ?>
         </div>
 
-        <div class="syt-table-wrap">
-            <table class="syt-table">
-                <thead>
-                    <tr>
-                        <th>Saat</th>
-                        <th>Spor</th>
-                        <th>Maç / Etkinlik</th>
-                        <th>Lig / Turnuva</th>
-                        <th>Kanal(lar)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php echo syt_render_matches_table($matches, $categories); ?>
-                </tbody>
-            </table>
+        <div class="syt-list">
+            <?php echo syt_render_matches_table($matches, $categories); ?>
         </div>
 
     </div>

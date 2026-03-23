@@ -48,6 +48,18 @@
         return map[slug] || '';
     }
 
+    function isNoBroadcast(channel) {
+        if (!channel) {
+            return false;
+        }
+        var normalized = normalizeKey(channel).trim();
+        return normalized === 'yayin yok';
+    }
+
+    function escapeHtml(text) {
+        return $('<div>').text(text).html();
+    }
+
     function displayLeague(league) {
         var normalized = normalizeKey(league);
         if (normalized === 'spor programi') {
@@ -67,18 +79,6 @@
         value = value.replace(/spor programi/gi, 'Spor Programı');
 
         return value;
-    }
-
-    function isNoBroadcast(channel) {
-        if (!channel) {
-            return false;
-        }
-        var normalized = normalizeKey(channel).trim();
-        return normalized === 'yayin yok';
-    }
-
-    function escapeHtml(text) {
-        return $('<div>').text(text).html();
     }
 
     function normalizeCategories(categories, matches) {
@@ -195,12 +195,12 @@
     }
 
     function renderMatches($wrap, matches, categories, emptyMessage) {
-        var $tbody = $wrap.find('.syt-table tbody');
-        $tbody.empty();
+        var $list = $wrap.find('.syt-list');
+        $list.empty();
 
         if (!matches || matches.length === 0) {
             var message = emptyMessage || SYT.strings.no_data;
-            $tbody.append('<tr class="syt-empty"><td colspan="5">' + escapeHtml(message) + '</td></tr>');
+            $list.append('<div class="syt-empty">' + escapeHtml(message) + '</div>');
             return;
         }
 
@@ -213,26 +213,26 @@
         var groups = groupByTime(matches);
         Object.keys(groups).sort().forEach(function (time) {
             var items = groups[time];
-            var rowspan = items.length;
+            var $group = $('<div class="syt-group"></div>');
+            var $timeCol = $('<div class="syt-time-col"></div>');
+            $timeCol.append('<span class="syt-time-icon">🕒</span>');
+            $timeCol.append('<span class="syt-time-text">' + escapeHtml(time) + '</span>');
 
-            items.forEach(function (match, index) {
+            var $items = $('<div class="syt-group-items"></div>');
+
+            items.forEach(function (match) {
                 var categorySlug = categorySlugForMatch(match, categories);
-                var $tr = $('<tr class="syt-row"></tr>').attr('data-sport', categorySlug);
+                var emoji = emojiForSlug(categorySlug) || '•';
+                var $row = $('<div class="syt-item syt-row"></div>').attr('data-sport', categorySlug);
 
-                if (index === 0) {
-                    $tr.append('<td class="syt-time" rowspan="' + rowspan + '"><span class="syt-time-badge">' + escapeHtml(time) + '</span></td>');
+                $row.append('<div class="syt-item-icon">' + escapeHtml(emoji) + '</div>');
+
+                var $content = $('<div class="syt-item-content"></div>');
+                $content.append('<div class="syt-item-title">' + escapeHtml(match.match || '') + '</div>');
+                if (match.league) {
+                    $content.append('<div class="syt-item-sub">' + escapeHtml(displayLeague(match.league)) + '</div>');
                 }
-
-                var sportClass = 'sport-' + categorySlug;
-                var sportLabel = match.sport || '';
-                var emoji = emojiForSlug(categorySlug);
-                var sportText = emoji ? emoji + ' ' + sportLabel : sportLabel;
-
-                $tr.append('<td class="syt-sport"><span class="syt-sport-badge ' + sportClass + '">' + escapeHtml(sportText) + '</span></td>');
-
-                $tr.append('<td class="syt-match">' + escapeHtml(match.match || '') + '</td>');
-
-                $tr.append('<td class="syt-league">' + escapeHtml(displayLeague(match.league)) + '</td>');
+                $row.append($content);
 
                 var channelsHtml = '';
                 if (match.channels && match.channels.length) {
@@ -244,10 +244,15 @@
                         channelsHtml += '<span class="' + classes + '">' + escapeHtml(displayChannel(channel)) + '</span>';
                     });
                 }
-                $tr.append('<td class="syt-channels">' + channelsHtml + '</td>');
+                $row.append('<div class="syt-item-channels">' + channelsHtml + '</div>');
+                $row.append('<div class="syt-item-arrow" aria-hidden="true">›</div>');
 
-                $tbody.append($tr);
+                $items.append($row);
             });
+
+            $group.append($timeCol);
+            $group.append($items);
+            $list.append($group);
         });
     }
 
