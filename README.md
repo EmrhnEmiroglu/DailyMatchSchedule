@@ -1,141 +1,200 @@
-# Spor Yayın Takvimi (WordPress Eklentisi)
+# ⚽ Sporkulis Yayın Takvimi
 
-Sporekrani.com verisini çekip WordPress üzerinde günlük spor yayın akışını şık ve hızlı bir şekilde göstermeyi amaçlayan bir eklenti.
+> WordPress için günlük spor yayın takvimi eklentisi.  
 
-## İçerik
+![WordPress](https://img.shields.io/badge/WordPress-5.8+-21759B?logo=wordpress&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-7.4+-777BB4?logo=php&logoColor=white)
+![Lisans](https://img.shields.io/badge/Lisans-GPL--2.0+-green)
+
+---
+
+## İçindekiler
 
 - [Özellikler](#özellikler)
 - [Gereksinimler](#gereksinimler)
 - [Kurulum](#kurulum)
 - [Kullanım](#kullanım)
-- [Filtre Mantığı ve Kategoriler](#filtre-mantığı-ve-kategoriler)
+- [Filtreler ve Kategoriler](#filtreler-ve-kategoriler)
 - [Önbellek](#önbellek)
 - [Yönetim Paneli](#yönetim-paneli)
-- [Veri Kaynağı](#veri-kaynağı)
 - [Dizin Yapısı](#dizin-yapısı)
 - [Sorun Giderme](#sorun-giderme)
 - [Geliştirme](#geliştirme)
 - [Lisans](#lisans)
 
+---
+
 ## Özellikler
 
-- Günlük yayın listesi, tek kısa kod ile sayfada görünür.
-- Bugün ve Yarın arasında AJAX ile hızlı geçiş.
-- Kategori filtreleri ve tema rengi `#ef7123` ile modern arayüz.
-- Program içerikleri TV simgesiyle belirginleştirilir.
-- Türkçe karakter dönüşümleri (ör. `Yıldız`, `Programı`) düzeltilir.
-- Dış siteye yönlendirme yoktur; satıra tıklamak sayfadan çıkarmaz.
-- Transient API ile önbellek ve performans optimizasyonu.
+**Tarih ve Navigasyon**
+- 📅 **Bugün / Yarın butonu** — iki buton arasında AJAX ile sayfa yenilemesiz geçiş
+- 🟠 **Aktif buton vurgusu** — seçili tarih `#ef7123` turuncu ile belirtilir
+
+**Kategori Filtreleri**
+- 🔘 **Tek tıkla filtreleme** — Tümü, Futbol, Basketbol, Voleybol, Tenis, Programlar
+- ✅ **Aktif filtre vurgusu** — seçili kategori turuncu dolgu ile öne çıkar
+- 📺 **Otomatik Program kategorisi** — TV programları ayrı kategoriye alınır, 📺 simgesiyle gösterilir
+- ⚽🏀🏐🎾 **Spor simgeleri** — her kategori butonunda ilgili emoji
+
+**Maç Listesi**
+- 🕐 **Saat sütunu** — turuncu saat ikonu ve altında `HH:MM` formatında zaman
+- 🏷️ **Spor simgesi** — her satırda maçın spor dalına ait ikon
+- 📋 **Maç adı + lig** — büyük maç adı, altında küçük lig/turnuva bilgisi
+- 📡 **Kanal badge'leri** — yayınlayan kanal(lar) soluk gri etiket olarak listelenir
+- ▶ **Satır oku** — her satırın sağında yönlendirme ikonu; dış siteye **çıkmaz**
+- 🎨 **Açık turuncu arka plan** — saat sütunu hafif renkli bantla ayrışır
+
+**Teknik**
+- 🗄️ **Transient önbellek** — gereksiz ağ istekleri engellenir, sayfa hızı korunur
+- 🔤 **Türkçe karakter düzeltmesi** — `Yıldız`, `Programı` gibi bozuk karakterler otomatik düzeltilir
+
+---
 
 ## Gereksinimler
 
-- WordPress 5.8+ (önerilen)
-- PHP 7.4+ (önerilen)
-- `ext-dom` ve `ext-libxml` PHP eklentileri (HTML parse için)
-- Sunucudan `https://www.sporekrani.com` adresine çıkış izni
+| Bileşen | Minimum Sürüm |
+|---|---|
+| WordPress | 5.8+ |
+| PHP | 7.4+ |
+| PHP eklentisi | `ext-dom`, `ext-libxml` |
+| Sunucu | Dış kaynaklara `wp_remote_get()` ile erişim izni |
+
+---
 
 ## Kurulum
 
-1. WordPress Yönetim Paneli > Eklentiler > Yeni Ekle > Eklenti Yükle yolunu izleyin.
-1. `spor-yayin-takvimi-install.zip` dosyasını yükleyip etkinleştirin.
-1. Klasör olarak kurmak isterseniz `spor-yayin-takvimi` dizinini `wp-content/plugins/` altına kopyalayın.
+**ZIP ile (önerilen):**
+
+1. **Eklentiler → Yeni Ekle → Eklenti Yükle** yolunu izleyin
+2. `spor-yayin-takvimi-install.zip` dosyasını yükleyin
+3. **Etkinleştir** butonuna tıklayın
+
+**Manuel:**
+
+```bash
+# Repoyu klonlayın veya ZIP'i açın
+cp -r spor-yayin-takvimi /wp-content/plugins/
+```
+
+Ardından WordPress yönetim panelinden eklentiyi etkinleştirin.
+
+---
 
 ## Kullanım
 
-Sayfa veya yazı içine şu kısa kodu ekleyin:
+Herhangi bir sayfa veya yazıya aşağıdaki shortcode'u ekleyin:
 
-```text
+```
 [spor_yayin_takvimi]
 ```
 
-İsteğe bağlı parametreler:
+**Parametreler:**
 
-```text
+```
 [spor_yayin_takvimi date="2026-03-23" sport="Futbol"]
 ```
 
-- `date`: `YYYY-MM-DD` formatında başlangıç tarihi
-- `sport`: Varsayılan aktif filtre (örn. `Futbol`)
+| Parametre | Varsayılan | Açıklama |
+|---|---|---|
+| `date` | Bugünün tarihi | `YYYY-MM-DD` formatında başlangıç tarihi |
+| `sport` | *(boş — tümü)* | Sayfa açıldığında varsayılan aktif filtre |
 
-## Filtre Mantığı ve Kategoriler
+---
 
-Varsayılan kategoriler:
+## Filtreler ve Kategoriler
 
-- Futbol ⚽
-- Basketbol 🏀
-- Voelybol 🏐
-- Tenis 🎾
+Arayüzde varsayılan olarak görünen kategoriler:
 
-Program içerikleri otomatik olarak `Programlar` kategorisine düşer ve TV simgesiyle gösterilir.
+| Simge | Kategori |
+|---|---|
+| ⚽ | Futbol |
+| 🏀 | Basketbol |
+| 🏐 | Voleybol |
+| 🎾 | Tenis |
+| 📺 | Programlar *(otomatik)* |
 
-Kategori filtrelerinin doğru çalışması için kategori adlarının veri kaynağındaki spor adlarıyla uyumlu olması önerilir.
+> **Not:** Kategori adları veri kaynağındaki spor adlarıyla birebir eşleşmelidir. Yönetim panelinden kategori listesi düzenlenebilir.
+
+---
 
 ## Önbellek
 
-- Veri, WordPress Transient API ile saklanır.
-- Varsayılan süre 3600 saniyedir.
-- Önbellek süresi yönetim panelinden değiştirilebilir.
-- “Tüm önbelleği temizle” butonu ile tek tıkla sıfırlanabilir.
+Eklenti, WordPress **Transient API** üzerinden önbellek yönetimi yapar.
+
+- Varsayılan süre: **3600 saniye (1 saat)**
+- Yönetim panelinden süre değiştirilebilir
+- **"Tüm önbelleği temizle"** butonu ile anlık sıfırlama yapılabilir
+
+---
 
 ## Yönetim Paneli
 
-WordPress > Ayarlar > Spor Yayın Takvimi
+**WordPress → Ayarlar → Spor Yayın Takvimi**
 
-Ayarlar:
+| Ayar | Açıklama |
+|---|---|
+| Önbellek süresi | Saniye cinsinden saklanma süresi |
+| Varsayılan filtre | Sayfa ilk açıldığında aktif spor dalı |
+| Kategori listesi | Her satıra bir kategori; filtrelerde gösterilir |
+| Önbelleği temizle | Tüm tarihler için önbelleği sıfırlar |
 
-- Önbellek süresi (saniye)
-- Varsayılan spor filtresi
-- Kategori listesi (her satıra bir kategori)
-- Tüm önbelleği temizle
-
-## Veri Kaynağı
-
-Veri kaynağı:
-
-- `https://www.sporekrani.com/home/day/YYYY-MM-DD`
-
-Bu eklenti bağımsızdır ve sporekrani.com ile resmi bir bağlantısı yoktur.
+---
 
 ## Dizin Yapısı
 
-```text
-spor-yayin-takvimi/
-├── spor-yayin-takvimi.php
-├── includes/
-│   ├── scraper.php
-│   ├── cache.php
-│   ├── shortcode.php
-│   └── admin.php
-└── assets/
-    ├── css/style.css
-    └── js/script.js
 ```
+spor-yayin-takvimi/
+├── spor-yayin-takvimi.php   ← Ana dosya: header, hook'lar, AJAX
+├── includes/
+│   ├── scraper.php          ← HTML çekme ve parse etme (DOMDocument)
+│   ├── cache.php            ← Transient okuma / yazma / silme
+│   ├── shortcode.php        ← [spor_yayin_takvimi] render
+│   └── admin.php            ← Yönetim paneli ve ayarlar
+└── assets/
+    ├── css/style.css        ← Arayüz stilleri
+    └── js/script.js         ← AJAX tarih geçişi, spor filtresi
+```
+
+---
 
 ## Sorun Giderme
 
-- Eklenti listede görünmüyorsa zip’in kökünde `spor-yayin-takvimi/` klasörü olmalıdır.
-- Türkçe karakterler bozuksa sunucu tarafında UTF-8 destekli PHP yapılandırması olduğundan emin olun.
-- Veri gelmiyorsa sunucunun dış bağlantı iznini ve `wp_remote_get()` çağrılarını kontrol edin.
-- Önbellek nedeniyle güncelleme gecikiyorsa yönetim panelinden önbelleği temizleyin.
+**Eklenti listede görünmüyor:**  
+ZIP içinde en dışta `spor-yayin-takvimi/` klasörü olmalıdır. Dosyalar doğrudan ZIP kökünde olmamalıdır.
+
+**Türkçe karakterler bozuk görünüyor:**  
+Sunucunuzun PHP yapılandırmasında `default_charset = UTF-8` ayarlı olduğundan emin olun.
+
+**Veri gelmiyor / boş tablo:**  
+Sunucunun dış bağlantıya izin verdiğini kontrol edin. Bazı hosting sağlayıcılar `wp_remote_get()` ile yapılan dış istekleri engeller.
+
+**Güncelleme gecikiyor:**  
+Yönetim panelinden **"Tüm önbelleği temizle"** butonuna tıklayın; sonraki sayfa yüklemesinde veri yeniden çekilecektir.
+
+---
 
 ## Geliştirme
 
-Paket oluşturmak için klasör yapısının korunması gerekir. Örnek PowerShell komutu:
+Kurulum ZIP'ini oluşturmak için proje kökünde aşağıdaki Python betiğini çalıştırabilirsiniz:
 
-```powershell
-python - <<'PY'
+```python
 import os, zipfile
-base = r"C:\path\to\spor-yayin-takvimi"
+
+base     = r"C:\path\to\spor-yayin-takvimi"
 zip_path = r"C:\path\to\spor-yayin-takvimi-install.zip"
+
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
     for root, dirs, files in os.walk(base):
         for name in files:
             full = os.path.join(root, name)
-            rel = os.path.relpath(full, os.path.dirname(base)).replace('\\', '/')
+            rel  = os.path.relpath(full, os.path.dirname(base)).replace('\\', '/')
             zf.write(full, rel)
-PY
+
+print("ZIP oluşturuldu:", zip_path)
 ```
+
+---
 
 ## Lisans
 
-GPL-2.0+
+[GPL-2.0+](https://www.gnu.org/licenses/gpl-2.0.html)
