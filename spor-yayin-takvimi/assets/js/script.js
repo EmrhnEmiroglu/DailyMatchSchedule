@@ -16,15 +16,22 @@
             .replace(/ç/g, 'c');
     }
 
+    function normalizeKey(text) {
+        var value = normalizeTurkish(text).toLowerCase().trim();
+        value = value.replace(/\s+/g, ' ');
+        value = value.replace(/voelybol/g, 'voleybol');
+        return value;
+    }
+
     function normalizeQuery(text) {
-        return normalizeTurkish(text).toLowerCase().trim();
+        return normalizeKey(text);
     }
 
     function sportSlug(sport) {
         if (!sport) {
             return 'diger';
         }
-        var slug = normalizeTurkish(sport);
+        var slug = normalizeKey(sport);
         slug = slug.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         slug = slug.replace(/^-+|-+$/g, '');
         return slug || 'diger';
@@ -45,7 +52,7 @@
         if (!channel) {
             return false;
         }
-        var normalized = normalizeTurkish(channel).toLowerCase().trim();
+        var normalized = normalizeKey(channel).trim();
         return normalized === 'yayin yok';
     }
 
@@ -112,6 +119,29 @@
         });
     }
 
+    function categorySlugForMatch(match, categories) {
+        var sport = match && match.sport ? match.sport : '';
+        var sportKey = normalizeKey(sport);
+
+        if (!sportKey) {
+            return 'diger';
+        }
+
+        var list = normalizeCategories(categories, []);
+        for (var i = 0; i < list.length; i += 1) {
+            var category = list[i];
+            var categoryKey = normalizeKey(category.label || '');
+            if (!categoryKey) {
+                continue;
+            }
+            if (sportKey.indexOf(categoryKey) !== -1 || categoryKey.indexOf(sportKey) !== -1) {
+                return category.slug || sportSlug(category.label || '');
+            }
+        }
+
+        return 'diger';
+    }
+
     function buildFilterButtons($wrap, categories, matches, activeSport) {
         var ordered = normalizeCategories(categories, matches);
 
@@ -143,7 +173,7 @@
         return groups;
     }
 
-    function renderMatches($wrap, matches, emptyMessage) {
+    function renderMatches($wrap, matches, categories, emptyMessage) {
         var $tbody = $wrap.find('.syt-table tbody');
         $tbody.empty();
 
@@ -165,16 +195,16 @@
             var rowspan = items.length;
 
             items.forEach(function (match, index) {
-                var sportSlugValue = sportSlug(match.sport || '');
-                var $tr = $('<tr class="syt-row"></tr>').attr('data-sport', sportSlugValue);
+                var categorySlug = categorySlugForMatch(match, categories);
+                var $tr = $('<tr class="syt-row"></tr>').attr('data-sport', categorySlug);
 
                 if (index === 0) {
                     $tr.append('<td class="syt-time" rowspan="' + rowspan + '"><span class="syt-time-badge">' + escapeHtml(time) + '</span></td>');
                 }
 
-                var sportClass = 'sport-' + sportSlugValue;
+                var sportClass = 'sport-' + categorySlug;
                 var sportLabel = match.sport || '';
-                var emoji = emojiForSlug(sportSlugValue);
+                var emoji = emojiForSlug(categorySlug);
                 var sportText = emoji ? emoji + ' ' + sportLabel : sportLabel;
 
                 $tr.append('<td class="syt-sport"><span class="syt-sport-badge ' + sportClass + '">' + escapeHtml(sportText) + '</span></td>');
@@ -233,9 +263,10 @@
         return haystack.indexOf(query) !== -1;
     }
 
-    function applyFilters(matches, activeSport, searchQuery) {
+    function applyFilters(matches, categories, activeSport, searchQuery) {
         return matches.filter(function (match) {
-            var sportOk = activeSport === 'all' || sportSlug(match.sport || '') === activeSport;
+            var categorySlug = categorySlugForMatch(match, categories);
+            var sportOk = activeSport === 'all' || categorySlug === activeSport;
             var searchOk = matchesSearch(match, searchQuery);
             return sportOk && searchOk;
         });
@@ -261,8 +292,8 @@
         };
 
         state.activeSport = buildFilterButtons($wrap, state.categories, state.matches, state.activeSport);
-        var filtered = applyFilters(state.matches, state.activeSport, state.searchQuery);
-        renderMatches($wrap, filtered, getEmptyMessage(state));
+        var filtered = applyFilters(state.matches, state.categories, state.activeSport, state.searchQuery);
+        renderMatches($wrap, filtered, state.categories, getEmptyMessage(state));
 
         var $searchInput = $wrap.find('.syt-search-input');
         if ($searchInput.length && data.searchQuery) {
@@ -271,8 +302,8 @@
 
         $wrap.on('input', '.syt-search-input', function () {
             state.searchQuery = normalizeQuery($(this).val());
-            var nextFiltered = applyFilters(state.matches, state.activeSport, state.searchQuery);
-            renderMatches($wrap, nextFiltered, getEmptyMessage(state));
+            var nextFiltered = applyFilters(state.matches, state.categories, state.activeSport, state.searchQuery);
+            renderMatches($wrap, nextFiltered, state.categories, getEmptyMessage(state));
         });
 
         $wrap.on('click', '.syt-filter-btn', function () {
@@ -281,8 +312,8 @@
             $btn.addClass('is-active');
 
             state.activeSport = $btn.data('sport') || 'all';
-            var nextFiltered = applyFilters(state.matches, state.activeSport, state.searchQuery);
-            renderMatches($wrap, nextFiltered, getEmptyMessage(state));
+            var nextFiltered = applyFilters(state.matches, state.categories, state.activeSport, state.searchQuery);
+            renderMatches($wrap, nextFiltered, state.categories, getEmptyMessage(state));
         });
 
         $wrap.on('click', '.syt-date-btn', function () {
@@ -312,8 +343,8 @@
                         state.matches = response.data || [];
 
                         state.activeSport = buildFilterButtons($wrap, state.categories, state.matches, state.activeSport);
-                        var nextFiltered = applyFilters(state.matches, state.activeSport, state.searchQuery);
-                        renderMatches($wrap, nextFiltered, getEmptyMessage(state));
+                        var nextFiltered = applyFilters(state.matches, state.categories, state.activeSport, state.searchQuery);
+                        renderMatches($wrap, nextFiltered, state.categories, getEmptyMessage(state));
                         setStatus($wrap, '');
                     } else {
                         var message = response && response.data ? response.data : SYT.strings.server_error;

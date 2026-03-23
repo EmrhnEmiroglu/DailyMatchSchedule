@@ -97,9 +97,17 @@ function syt_normalize_turkish($text) {
     return strtr($text, $map);
 }
 
+function syt_normalize_key($text) {
+    $text = syt_normalize_turkish($text);
+    $text = strtolower(trim($text));
+    $text = preg_replace('/\s+/', ' ', $text);
+    $text = str_replace('voelybol', 'voleybol', $text);
+
+    return $text;
+}
+
 function syt_sport_slug($sport) {
-    $sport = syt_normalize_turkish($sport);
-    $sport = strtolower($sport);
+    $sport = syt_normalize_key($sport);
     $sport = preg_replace('/[^a-z0-9]+/', '-', $sport);
     $sport = trim($sport, '-');
 
@@ -107,7 +115,7 @@ function syt_sport_slug($sport) {
 }
 
 function syt_default_categories() {
-    return array('Futbol', 'Basketbol', 'Voleybol', 'Tenis');
+    return array('Futbol', 'Basketbol', 'Voelybol', 'Tenis');
 }
 
 function syt_get_categories() {
@@ -157,6 +165,29 @@ function syt_get_category_items() {
     return $items;
 }
 
+function syt_match_category_slug($sport, $categories) {
+    $sport_key = syt_normalize_key($sport);
+    if ($sport_key === '') {
+        return 'diger';
+    }
+
+    foreach ($categories as $category) {
+        $label = isset($category['label']) ? $category['label'] : '';
+        $slug = isset($category['slug']) ? $category['slug'] : '';
+        $cat_key = syt_normalize_key($label);
+
+        if ($cat_key === '') {
+            continue;
+        }
+
+        if (strpos($sport_key, $cat_key) !== false || strpos($cat_key, $sport_key) !== false) {
+            return $slug !== '' ? $slug : syt_sport_slug($label);
+        }
+    }
+
+    return 'diger';
+}
+
 function syt_is_no_broadcast($channel) {
     $normalized = syt_normalize_turkish($channel);
     $normalized = strtolower(trim($normalized));
@@ -164,13 +195,14 @@ function syt_is_no_broadcast($channel) {
     return $normalized === 'yayin yok';
 }
 
-function syt_render_matches_table($matches) {
+function syt_render_matches_table($matches, $categories = array()) {
     if (empty($matches)) {
         return '<tr class="syt-empty"><td colspan="5">Bu tarihte yayın bilgisi bulunamadı.</td></tr>';
     }
 
     $matches = syt_sort_matches_by_time($matches);
     $groups = array();
+    $categories = !empty($categories) ? $categories : syt_get_category_items();
 
     foreach ($matches as $match) {
         $time_key = isset($match['time']) ? $match['time'] : '';
@@ -187,14 +219,14 @@ function syt_render_matches_table($matches) {
 
         foreach ($items as $index => $match) {
             $sport = isset($match['sport']) ? trim($match['sport']) : '';
-            $sport_slug = syt_sport_slug($sport);
-            $sport_class = 'sport-' . $sport_slug;
-            $sport_emoji = syt_sport_emoji($sport_slug);
+            $category_slug = syt_match_category_slug($sport, $categories);
+            $sport_class = 'sport-' . $category_slug;
+            $sport_emoji = syt_sport_emoji($category_slug);
             $match_name = isset($match['match']) ? $match['match'] : '';
             $league = isset($match['league']) ? $match['league'] : '';
             $channels = isset($match['channels']) ? (array) $match['channels'] : array();
 
-            $html .= '<tr class="syt-row" data-sport="' . esc_attr($sport_slug) . '">';
+            $html .= '<tr class="syt-row" data-sport="' . esc_attr($category_slug) . '">';
 
             if ($index === 0) {
                 $html .= '<td class="syt-time" rowspan="' . esc_attr($rowspan) . '">';
@@ -346,7 +378,7 @@ function syt_shortcode($atts) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php echo syt_render_matches_table($matches); ?>
+                    <?php echo syt_render_matches_table($matches, $categories); ?>
                 </tbody>
             </table>
         </div>

@@ -6,11 +6,11 @@
     --syt-ink: #1a1f2b;
     --syt-muted: #5f6b7a;
     --syt-border: #dee5ee;
-    --syt-accent: #0b6b5b;
-    --syt-accent-2: #d17a22;
+    --syt-accent: #ef7123;
+    --syt-accent-2: #ef7123;
     --syt-soft: #eef2f6;
     --syt-danger: #b33a3a;
-    --syt-info: #2563eb;
+    --syt-info: #ef7123;
 
     font-family: "Plus Jakarta Sans", sans-serif;
     background: linear-gradient(180deg, #f9fafc 0%, #eef2f7 100%);
@@ -30,7 +30,7 @@
     right: -120px;
     width: 240px;
     height: 240px;
-    background: radial-gradient(circle, rgba(11, 107, 91, 0.15) 0%, rgba(11, 107, 91, 0) 70%);
+    background: radial-gradient(circle, rgba(239, 113, 35, 0.18) 0%, rgba(239, 113, 35, 0) 70%);
     pointer-events: none;
 }
 
@@ -68,8 +68,8 @@
 
 .syt-search-input:focus {
     outline: none;
-    border-color: var(--syt-info);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: var(--syt-accent);
+    box-shadow: 0 0 0 3px rgba(239, 113, 35, 0.2);
 }
 
 .syt-date-btn,
@@ -155,7 +155,7 @@
 }
 
 .syt-table tbody tr:hover {
-    background: #f2f7f5;
+    background: #fff4ec;
 }
 
 .syt-time {
@@ -166,7 +166,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(11, 107, 91, 0.12);
+    background: rgba(239, 113, 35, 0.18);
     color: var(--syt-accent);
     padding: 4px 10px;
     border-radius: 8px;
