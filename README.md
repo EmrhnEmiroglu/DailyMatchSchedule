@@ -1,16 +1,13 @@
 # ⚽ Sporkulis Yayın Takvimi
 
-> WordPress için günlük spor yayın takvimi eklentisi.  
+> WordPress için günlük spor yayın takvimi eklentisi.  
 
 ## Ekran Görüntüleri
 
-### Admin Paneli
-<img width="1744" height="881" alt="image" src="https://github.com/user-attachments/assets/d811bc1d-6e8e-483a-b908-87505913cfc7" />
-
-
-### Tablo Görünümü
-<img width="1072" height="858" alt="image" src="https://github.com/user-attachments/assets/f35e0305-ce62-4fa4-badf-1a93f1da1bc5" />
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/d811bc1d-6e8e-483a-b908-87505913cfc7" alt="Admin Paneli" width="48%" />
+  <img src="https://github.com/user-attachments/assets/f35e0305-ce62-4fa4-badf-1a93f1da1bc5" alt="Tablo Görünümü" width="48%" />
+</p>
 
 ---
 
