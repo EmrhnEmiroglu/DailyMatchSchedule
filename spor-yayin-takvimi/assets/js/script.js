@@ -49,6 +49,34 @@
         return map[slug] || '';
     }
 
+    function fixTurkishText(value) {
+        var text = String(value || '');
+        if (!text) {
+            return text;
+        }
+
+        var replacements = [
+            ['spor programi', 'Spor Programı'],
+            ['futbol programi', 'Futbol Programı'],
+            ['basketbol programi', 'Basketbol Programı'],
+            ['voleybol programi', 'Voleybol Programı'],
+            ['tenis programi', 'Tenis Programı'],
+            ['gunun yarislari', 'Günün Yarışları'],
+            ['günün yarislari', 'Günün Yarışları'],
+            ['yarislari', 'Yarışları'],
+            ['yarislar', 'Yarışlar'],
+            ['yaris', 'Yarış'],
+            ['programi', 'Programı']
+        ];
+
+        replacements.forEach(function (pair) {
+            var regex = new RegExp(pair[0], 'gi');
+            text = text.replace(regex, pair[1]);
+        });
+
+        return text;
+    }
+
     function isNoBroadcast(channel) {
         if (!channel) {
             return false;
@@ -62,11 +90,7 @@
     }
 
     function displayLeague(league) {
-        var normalized = normalizeKey(league);
-        if (normalized === 'spor programi') {
-            return 'Spor Programı';
-        }
-        return league || '';
+        return fixTurkishText(league || '');
     }
 
     function displayChannel(channel) {
@@ -77,7 +101,7 @@
 
         value = value.replace(/yildizi/gi, 'Yıldızı');
         value = value.replace(/yildiz/gi, 'Yıldız');
-        value = value.replace(/spor programi/gi, 'Spor Programı');
+        value = fixTurkishText(value);
 
         return value;
     }
@@ -248,7 +272,7 @@
                 $row.append('<div class="syt-item-icon">' + escapeHtml(emoji) + '</div>');
 
                 var $content = $('<div class="syt-item-content"></div>');
-                $content.append('<div class="syt-item-title">' + escapeHtml(match.match || '') + '</div>');
+                $content.append('<div class="syt-item-title">' + escapeHtml(fixTurkishText(match.match || '')) + '</div>');
                 if (match.league) {
                     $content.append('<div class="syt-item-sub">' + escapeHtml(displayLeague(match.league)) + '</div>');
                 }

@@ -106,6 +106,33 @@ function syt_normalize_key($text) {
     return $text;
 }
 
+function syt_fix_turkish_text($text) {
+    $text = (string) $text;
+    if ($text === '') {
+        return $text;
+    }
+
+    $replacements = array(
+        'spor programi' => 'Spor Programı',
+        'futbol programi' => 'Futbol Programı',
+        'basketbol programi' => 'Basketbol Programı',
+        'voleybol programi' => 'Voleybol Programı',
+        'tenis programi' => 'Tenis Programı',
+        'gunun yarislari' => 'Günün Yarışları',
+        'günün yarislari' => 'Günün Yarışları',
+        'yarislari' => 'Yarışları',
+        'yarislar' => 'Yarışlar',
+        'yaris' => 'Yarış',
+        'programi' => 'Programı',
+    );
+
+    foreach ($replacements as $search => $replace) {
+        $text = str_ireplace($search, $replace, $text);
+    }
+
+    return $text;
+}
+
 function syt_sport_slug($sport) {
     $sport = syt_normalize_key($sport);
     $sport = preg_replace('/[^a-z0-9]+/', '-', $sport);
@@ -151,12 +178,7 @@ function syt_sport_emoji($sport_slug) {
 }
 
 function syt_display_league($league) {
-    $normalized = syt_normalize_key($league);
-    if ($normalized === 'spor programi') {
-        return 'Spor Programı';
-    }
-
-    return $league;
+    return syt_fix_turkish_text($league);
 }
 
 function syt_display_channel($channel) {
@@ -167,7 +189,7 @@ function syt_display_channel($channel) {
 
     $channel = preg_replace('/yildizi/i', 'Yıldızı', $channel);
     $channel = preg_replace('/yildiz/i', 'Yıldız', $channel);
-    $channel = preg_replace('/spor programi/i', 'Spor Programı', $channel);
+    $channel = syt_fix_turkish_text($channel);
 
     return $channel;
 }
@@ -275,7 +297,7 @@ function syt_render_matches_table($matches, $categories = array()) {
             $html .= '<div class="syt-item syt-row" data-sport="' . esc_attr($category_slug) . '">';
             $html .= '<div class="syt-item-icon">' . esc_html($sport_emoji ? $sport_emoji : '•') . '</div>';
             $html .= '<div class="syt-item-content">';
-            $html .= '<div class="syt-item-title">' . esc_html($match_name) . '</div>';
+            $html .= '<div class="syt-item-title">' . esc_html(syt_fix_turkish_text($match_name)) . '</div>';
             if (!empty($league)) {
                 $html .= '<div class="syt-item-sub">' . esc_html(syt_display_league($league)) . '</div>';
             }
