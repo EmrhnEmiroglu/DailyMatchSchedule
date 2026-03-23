@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Plugin Name: Spor Yayın Takvimi
  * Description: sporekrani.com günlük spor yayın takvimini WordPress sayfalarında gösterir.
