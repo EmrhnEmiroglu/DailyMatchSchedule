@@ -4,16 +4,9 @@
 
 ## Ekran Görüntüleri
 
-<div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; width: 100%;">
-  <div style="flex: 1; text-align: center;">
-    <p><strong>Admin Paneli</strong></p>
-    <img src="https://github.com/user-attachments/assets/d811bc1d-6e8e-483a-b908-87505913cfc7" alt="Admin Paneli Görseli" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-  </div>
-  <div style="flex: 1; text-align: center;">
-    <p><strong>Tablo Görünümü</strong></p>
-    <img src="https://github.com/user-attachments/assets/f35e0305-ce62-4fa4-badf-1a93f1da1bc5" alt="Tablo Görünümü Görseli" style="max-width: 100%; height: auto; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-  </div>
-</div>
+| Admin Paneli | Tablo Görünümü |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/d811bc1d-6e8e-483a-b908-87505913cfc7" width="100%"> | <img src="https://github.com/user-attachments/assets/f35e0305-ce62-4fa4-badf-1a93f1da1bc5" width="100%"> |
 ---
 
 ## İçindekiler
