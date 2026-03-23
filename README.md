@@ -5,11 +5,11 @@
 ## Ekran Görüntüleri
 
 ### Admin Paneli
-![Admin Paneli Görseli]<img width="1072" height="858" alt="image" src="https://github.com/user-attachments/assets/f35e0305-ce62-4fa4-badf-1a93f1da1bc5" />
+<img width="1744" height="881" alt="image" src="https://github.com/user-attachments/assets/d811bc1d-6e8e-483a-b908-87505913cfc7" />
 
 
 ### Tablo Görünümü
-![Tablo Görünümü Görseli]<img width="1744" height="881" alt="image" src="https://github.com/user-attachments/assets/d811bc1d-6e8e-483a-b908-87505913cfc7" />
+<img width="1072" height="858" alt="image" src="https://github.com/user-attachments/assets/f35e0305-ce62-4fa4-badf-1a93f1da1bc5" />
 
 
 ---
