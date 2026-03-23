@@ -43,7 +43,8 @@
             basketbol: '🏀',
             voleybol: '🏐',
             voelybol: '🏐',
-            tenis: '🎾'
+            tenis: '🎾',
+            programlar: '📺'
         };
         return map[slug] || '';
     }
@@ -140,7 +141,26 @@
         });
     }
 
+    function isProgramMatch(match) {
+        var sportKey = normalizeKey(match && match.sport ? match.sport : '');
+        var leagueKey = normalizeKey(match && match.league ? match.league : '');
+
+        if (sportKey && sportKey.indexOf('program') !== -1) {
+            return true;
+        }
+
+        if (leagueKey && leagueKey.indexOf('spor programi') !== -1) {
+            return true;
+        }
+
+        return false;
+    }
+
     function categorySlugForMatch(match, categories) {
+        if (isProgramMatch(match)) {
+            return 'programlar';
+        }
+
         var sport = match && match.sport ? match.sport : '';
         var sportKey = normalizeKey(sport);
 

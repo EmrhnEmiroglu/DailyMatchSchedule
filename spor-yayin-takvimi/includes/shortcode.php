@@ -188,7 +188,26 @@ function syt_get_category_items() {
     return $items;
 }
 
-function syt_match_category_slug($sport, $categories) {
+function syt_is_program_item($sport, $league) {
+    $sport_key = syt_normalize_key($sport);
+    $league_key = syt_normalize_key($league);
+
+    if ($sport_key !== '' && strpos($sport_key, 'program') !== false) {
+        return true;
+    }
+
+    if ($league_key !== '' && strpos($league_key, 'spor programi') !== false) {
+        return true;
+    }
+
+    return false;
+}
+
+function syt_match_category_slug($sport, $league, $categories) {
+    if (syt_is_program_item($sport, $league)) {
+        return 'programlar';
+    }
+
     $sport_key = syt_normalize_key($sport);
     if ($sport_key === '') {
         return 'diger';
@@ -247,12 +266,12 @@ function syt_render_matches_table($matches, $categories = array()) {
 
         foreach ($items as $match) {
             $sport = isset($match['sport']) ? trim($match['sport']) : '';
-            $category_slug = syt_match_category_slug($sport, $categories);
-            $sport_emoji = syt_sport_emoji($category_slug);
             $match_name = isset($match['match']) ? $match['match'] : '';
             $league = isset($match['league']) ? $match['league'] : '';
             $channels = isset($match['channels']) ? (array) $match['channels'] : array();
 
+            $category_slug = syt_match_category_slug($sport, $league, $categories);
+            $sport_emoji = syt_sport_emoji($category_slug);
             $html .= '<div class="syt-item syt-row" data-sport="' . esc_attr($category_slug) . '">';
             $html .= '<div class="syt-item-icon">' . esc_html($sport_emoji ? $sport_emoji : '•') . '</div>';
             $html .= '<div class="syt-item-content">';
