@@ -67,7 +67,10 @@ function syt_get_sports_from_matches($matches) {
     $sports = array();
     foreach ($matches as $match) {
         if (!empty($match['sport'])) {
-            $sports[$match['sport']] = true;
+            $sport = trim($match['sport']);
+            if ($sport !== '') {
+                $sports[$sport] = true;
+            }
         }
     }
 
@@ -132,14 +135,14 @@ function syt_render_matches_table($matches) {
         $rowspan = count($items);
 
         foreach ($items as $index => $match) {
-            $sport = isset($match['sport']) ? $match['sport'] : '';
+            $sport = isset($match['sport']) ? trim($match['sport']) : '';
             $sport_class = 'sport-' . syt_sport_slug($sport);
             $match_name = isset($match['match']) ? $match['match'] : '';
             $league = isset($match['league']) ? $match['league'] : '';
             $url = isset($match['url']) ? $match['url'] : '';
             $channels = isset($match['channels']) ? (array) $match['channels'] : array();
 
-            $html .= '<tr class="syt-row" data-sport="' . esc_attr($sport) . '">';
+            $html .= '<tr class="syt-row" data-sport="' . esc_attr(syt_sport_slug($sport)) . '">';
 
             if ($index === 0) {
                 $html .= '<td class="syt-time" rowspan="' . esc_attr($rowspan) . '">';
@@ -196,6 +199,8 @@ function syt_shortcode($atts) {
     }
 
     $sport = sanitize_text_field($atts['sport']);
+    $default_sport = sanitize_text_field(get_option('syt_default_sport', ''));
+    $search_enabled = (bool) get_option('syt_enable_search', 1);
 
     $matches = syt_get_matches($date);
     $error_message = '';
@@ -211,12 +216,16 @@ function syt_shortcode($atts) {
     $instance++;
     $instance_id = 'syt-' . $instance;
 
-    $initial_sport = $sport !== '' ? $sport : 'all';
+    $initial_sport = $sport !== '' ? $sport : $default_sport;
+    $initial_sport = trim($initial_sport);
+    $initial_sport_slug = $initial_sport === '' ? 'all' : syt_sport_slug($initial_sport);
 
     $inline_data = array(
         'date' => $date,
         'matches' => $matches,
-        'activeSport' => $initial_sport,
+        'activeSport' => $initial_sport_slug,
+        'searchEnabled' => $search_enabled,
+        'searchQuery' => '',
     );
 
     wp_add_inline_script(
@@ -238,8 +247,13 @@ function syt_shortcode($atts) {
     sort($sports, SORT_STRING | SORT_FLAG_CASE);
     $buttons = array_merge($buttons, $sports);
 
-    $active_filter = $initial_sport;
-    if ($active_filter !== 'all' && !in_array($active_filter, $buttons, true)) {
+    $button_slugs = array();
+    foreach ($buttons as $button_label) {
+        $button_slugs[] = syt_sport_slug($button_label);
+    }
+
+    $active_filter = $initial_sport_slug;
+    if ($active_filter !== 'all' && !in_array($active_filter, $button_slugs, true)) {
         $active_filter = 'all';
     }
 
@@ -254,11 +268,17 @@ function syt_shortcode($atts) {
             <div class="syt-filters">
                 <button type="button" class="syt-filter-btn <?php echo $active_filter === 'all' ? 'is-active' : ''; ?>" data-sport="all">Tümü</button>
                 <?php foreach ($buttons as $button) : ?>
-                    <button type="button" class="syt-filter-btn <?php echo $active_filter === $button ? 'is-active' : ''; ?>" data-sport="<?php echo esc_attr($button); ?>">
+                    <?php $button_slug = syt_sport_slug($button); ?>
+                    <button type="button" class="syt-filter-btn <?php echo $active_filter === $button_slug ? 'is-active' : ''; ?>" data-sport="<?php echo esc_attr($button_slug); ?>">
                         <?php echo esc_html($button); ?>
                     </button>
                 <?php endforeach; ?>
             </div>
+            <?php if ($search_enabled) : ?>
+                <div class="syt-search">
+                    <input type="text" class="syt-search-input" placeholder="Takım, lig veya kanal ara" />
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="syt-status" role="status" aria-live="polite">

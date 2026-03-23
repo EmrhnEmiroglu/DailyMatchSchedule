@@ -1,6 +1,6 @@
 ﻿(function ($) {
     function normalizeTurkish(text) {
-        return text
+        return String(text || '')
             .replace(/İ/g, 'i')
             .replace(/I/g, 'i')
             .replace(/ı/g, 'i')
@@ -14,6 +14,10 @@
             .replace(/ö/g, 'o')
             .replace(/Ç/g, 'c')
             .replace(/ç/g, 'c');
+    }
+
+    function normalizeQuery(text) {
+        return normalizeTurkish(text).toLowerCase().trim();
     }
 
     function sportSlug(sport) {
@@ -34,50 +38,64 @@
         return normalized === 'yayin yok';
     }
 
+    function escapeHtml(text) {
+        return $('<div>').text(text).html();
+    }
+
     function extractSports(matches) {
         var map = {};
         matches.forEach(function (match) {
-            if (match.sport) {
-                map[match.sport] = true;
+            if (!match.sport) {
+                return;
+            }
+            var label = String(match.sport).trim();
+            if (!label) {
+                return;
+            }
+            var slug = sportSlug(label);
+            if (!map[slug]) {
+                map[slug] = label;
             }
         });
-        return Object.keys(map);
+
+        return Object.keys(map).map(function (slug) {
+            return { slug: slug, label: map[slug] };
+        });
     }
 
     function buildFilterButtons($wrap, matches, activeSport) {
         var sports = extractSports(matches);
         var ordered = [];
 
-        if (sports.indexOf('Futbol') !== -1) {
-            ordered.push('Futbol');
-            sports = sports.filter(function (sport) {
-                return sport !== 'Futbol';
+        var futbol = sports.filter(function (item) {
+            return item.slug === 'futbol';
+        });
+        if (futbol.length) {
+            ordered.push(futbol[0]);
+            sports = sports.filter(function (item) {
+                return item.slug !== 'futbol';
             });
         }
 
         sports.sort(function (a, b) {
-            return a.localeCompare(b, 'tr');
+            return a.label.localeCompare(b.label, 'tr');
         });
 
         ordered = ordered.concat(sports);
 
-        if (activeSport !== 'all' && ordered.indexOf(activeSport) === -1) {
+        if (activeSport !== 'all' && !ordered.some(function (item) { return item.slug === activeSport; })) {
             activeSport = 'all';
         }
 
         var html = '';
         html += '<button type="button" class="syt-filter-btn' + (activeSport === 'all' ? ' is-active' : '') + '" data-sport="all">Tümü</button>';
-        ordered.forEach(function (sport) {
-            var active = activeSport === sport ? ' is-active' : '';
-            html += '<button type="button" class="syt-filter-btn' + active + '" data-sport="' + escapeHtml(sport) + '">' + escapeHtml(sport) + '</button>';
+        ordered.forEach(function (item) {
+            var active = activeSport === item.slug ? ' is-active' : '';
+            html += '<button type="button" class="syt-filter-btn' + active + '" data-sport="' + escapeHtml(item.slug) + '">' + escapeHtml(item.label) + '</button>';
         });
 
         $wrap.find('.syt-filters').html(html);
         return activeSport;
-    }
-
-    function escapeHtml(text) {
-        return $('<div>').text(text).html();
     }
 
     function groupByTime(matches) {
@@ -114,7 +132,7 @@
             var rowspan = items.length;
 
             items.forEach(function (match, index) {
-                var $tr = $('<tr class="syt-row"></tr>').attr('data-sport', match.sport || '');
+                var $tr = $('<tr class="syt-row"></tr>').attr('data-sport', sportSlug(match.sport || ''));
 
                 if (index === 0) {
                     $tr.append('<td class="syt-time" rowspan="' + rowspan + '"><span class="syt-time-badge">' + escapeHtml(time) + '</span></td>');
@@ -160,28 +178,69 @@
         $status.html('<span class="' + cls + '">' + escapeHtml(message) + '</span>');
     }
 
-    function filterMatches(matches, activeSport) {
-        if (!activeSport || activeSport === 'all') {
-            return matches;
+    function matchesSearch(match, query) {
+        if (!query) {
+            return true;
         }
+
+        var parts = [];
+        if (match.match) {
+            parts.push(match.match);
+        }
+        if (match.league) {
+            parts.push(match.league);
+        }
+        if (match.sport) {
+            parts.push(match.sport);
+        }
+        if (match.channels && match.channels.length) {
+            parts = parts.concat(match.channels);
+        }
+
+        var haystack = normalizeQuery(parts.join(' '));
+        return haystack.indexOf(query) !== -1;
+    }
+
+    function applyFilters(matches, activeSport, searchQuery) {
         return matches.filter(function (match) {
-            return match.sport === activeSport;
+            var sportOk = activeSport === 'all' || sportSlug(match.sport || '') === activeSport;
+            var searchOk = matchesSearch(match, searchQuery);
+            return sportOk && searchOk;
         });
+    }
+
+    function getEmptyMessage(state) {
+        if (state.searchQuery) {
+            return SYT.strings.no_search;
+        }
+        if (state.activeSport && state.activeSport !== 'all') {
+            return SYT.strings.no_filter;
+        }
+        return SYT.strings.no_data;
     }
 
     function initInstance($wrap, data) {
         var state = {
             date: data.date || $wrap.data('date'),
             matches: data.matches || [],
-            activeSport: data.activeSport || 'all'
+            activeSport: data.activeSport || 'all',
+            searchQuery: normalizeQuery(data.searchQuery || '')
         };
 
         state.activeSport = buildFilterButtons($wrap, state.matches, state.activeSport);
-        renderMatches(
-            $wrap,
-            filterMatches(state.matches, state.activeSport),
-            state.activeSport !== 'all' ? SYT.strings.no_filter : SYT.strings.no_data
-        );
+        var filtered = applyFilters(state.matches, state.activeSport, state.searchQuery);
+        renderMatches($wrap, filtered, getEmptyMessage(state));
+
+        var $searchInput = $wrap.find('.syt-search-input');
+        if ($searchInput.length && data.searchQuery) {
+            $searchInput.val(data.searchQuery);
+        }
+
+        $wrap.on('input', '.syt-search-input', function () {
+            state.searchQuery = normalizeQuery($(this).val());
+            var nextFiltered = applyFilters(state.matches, state.activeSport, state.searchQuery);
+            renderMatches($wrap, nextFiltered, getEmptyMessage(state));
+        });
 
         $wrap.on('click', '.syt-filter-btn', function () {
             var $btn = $(this);
@@ -189,19 +248,8 @@
             $btn.addClass('is-active');
 
             state.activeSport = $btn.data('sport') || 'all';
-            var filtered = filterMatches(state.matches, state.activeSport);
-
-            if (state.activeSport !== 'all' && filtered.length === 0) {
-                setStatus($wrap, SYT.strings.no_filter, 'info');
-            } else {
-                setStatus($wrap, '');
-            }
-
-            renderMatches(
-                $wrap,
-                filtered,
-                state.activeSport !== 'all' ? SYT.strings.no_filter : SYT.strings.no_data
-            );
+            var nextFiltered = applyFilters(state.matches, state.activeSport, state.searchQuery);
+            renderMatches($wrap, nextFiltered, getEmptyMessage(state));
         });
 
         $wrap.on('click', '.syt-date-btn', function () {
@@ -229,10 +277,10 @@
                     if (response && response.success) {
                         state.date = newDate;
                         state.matches = response.data || [];
-                        state.activeSport = 'all';
 
-                        buildFilterButtons($wrap, state.matches, state.activeSport);
-                        renderMatches($wrap, state.matches, SYT.strings.no_data);
+                        state.activeSport = buildFilterButtons($wrap, state.matches, state.activeSport);
+                        var nextFiltered = applyFilters(state.matches, state.activeSport, state.searchQuery);
+                        renderMatches($wrap, nextFiltered, getEmptyMessage(state));
                         setStatus($wrap, '');
                     } else {
                         var message = response && response.data ? response.data : SYT.strings.server_error;

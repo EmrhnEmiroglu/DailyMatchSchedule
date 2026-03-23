@@ -22,6 +22,18 @@ function syt_settings_init() {
         'default' => 3600,
     ));
 
+    register_setting('syt_settings', 'syt_default_sport', array(
+        'type' => 'string',
+        'sanitize_callback' => 'sanitize_text_field',
+        'default' => '',
+    ));
+
+    register_setting('syt_settings', 'syt_enable_search', array(
+        'type' => 'boolean',
+        'sanitize_callback' => 'syt_sanitize_checkbox',
+        'default' => 1,
+    ));
+
     add_settings_section(
         'syt_settings_section',
         'Genel Ayarlar',
@@ -36,12 +48,43 @@ function syt_settings_init() {
         'syt_settings',
         'syt_settings_section'
     );
+
+    add_settings_field(
+        'syt_default_sport',
+        'Varsayılan spor filtresi',
+        'syt_default_sport_field',
+        'syt_settings',
+        'syt_settings_section'
+    );
+
+    add_settings_field(
+        'syt_enable_search',
+        'Arama filtresi',
+        'syt_enable_search_field',
+        'syt_settings',
+        'syt_settings_section'
+    );
 }
 add_action('admin_init', 'syt_settings_init');
+
+function syt_sanitize_checkbox($value) {
+    return $value ? 1 : 0;
+}
 
 function syt_cache_duration_field() {
     $value = (int) get_option('syt_cache_duration', 3600);
     echo '<input type="number" min="60" step="60" name="syt_cache_duration" value="' . esc_attr($value) . '" />';
+}
+
+function syt_default_sport_field() {
+    $value = get_option('syt_default_sport', '');
+    echo '<input type="text" name="syt_default_sport" value="' . esc_attr($value) . '" placeholder="Örn: Futbol" />';
+    echo '<p class="description">Boş bırakılırsa varsayılan filtre "Tümü" olur.</p>';
+}
+
+function syt_enable_search_field() {
+    $value = (int) get_option('syt_enable_search', 1);
+    echo '<label><input type="checkbox" name="syt_enable_search" value="1" ' . checked(1, $value, false) . ' /> Arama kutusunu göster</label>';
 }
 
 function syt_handle_clear_cache() {

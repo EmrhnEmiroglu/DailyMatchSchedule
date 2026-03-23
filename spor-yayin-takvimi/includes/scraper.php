@@ -26,14 +26,52 @@ function syt_scrape($date) {
         return new WP_Error('syt_empty_body', 'Kaynak siteden boş içerik alındı.');
     }
 
+    $charset = syt_detect_charset($response, $body);
+    $body = syt_force_utf8($body, $charset);
+
     return syt_parse_html($body, $date);
 }
 
+function syt_detect_charset($response, $html) {
+    $content_type = wp_remote_retrieve_header($response, 'content-type');
+    if ($content_type && preg_match('/charset=([a-zA-Z0-9\\-_]+)/i', $content_type, $match)) {
+        return strtoupper($match[1]);
+    }
+
+    if (preg_match('/<meta[^>]+charset\\s*=\\s*[\"\\\']?([a-zA-Z0-9\\-_]+)/i', $html, $match)) {
+        return strtoupper($match[1]);
+    }
+
+    if (preg_match('/<meta[^>]+content=[\"\\\'][^\"\\\']*charset=([^\"\\\'\\s]+)/i', $html, $match)) {
+        return strtoupper($match[1]);
+    }
+
+    return '';
+}
+
+function syt_force_utf8($html, $charset) {
+    if (!$charset) {
+        return $html;
+    }
+
+    $normalized = strtoupper($charset);
+    if ($normalized === 'UTF-8' || $normalized === 'UTF8') {
+        return $html;
+    }
+
+    if (function_exists('mb_convert_encoding')) {
+        return mb_convert_encoding($html, 'UTF-8', $normalized);
+    }
+
+    return $html;
+}
+
 function syt_parse_html($html, $date) {
-    libxml_use_internal_errors(true);
+    $previous = libxml_use_internal_errors(true);
     $dom = new DOMDocument();
-    $dom->loadHTML($html);
+    $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html);
     libxml_clear_errors();
+    libxml_use_internal_errors($previous);
 
     $xpath = new DOMXPath($dom);
     $nodes = $xpath->query('//a[contains(@href, "/home/match/")]');
@@ -62,7 +100,7 @@ function syt_parse_html($html, $date) {
             }
         }
 
-        $sport = isset($alts[0]) ? $alts[0] : '';
+        $sport = isset($alts[0]) ? trim($alts[0]) : '';
         $channels = array();
         if (count($alts) > 1) {
             $channels = array_slice($alts, 1);

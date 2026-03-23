@@ -47,6 +47,7 @@ function syt_enqueue_assets() {
         'loading' => 'Yükleniyor...',
         'no_data' => 'Bu tarihte yayın bilgisi bulunamadı.',
         'no_filter' => 'Seçilen spor dalı için yayın bulunamadı.',
+        'no_search' => 'Arama için yayın bulunamadı.',
         'server_error' => 'Sunucuya ulaşılamadı. Lütfen tekrar deneyin.',
     );
 
