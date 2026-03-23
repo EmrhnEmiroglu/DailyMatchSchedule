@@ -1,0 +1,231 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+
+.syt-wrapper {
+    --syt-bg: #f2f5f8;
+    --syt-card: #ffffff;
+    --syt-ink: #1c1f24;
+    --syt-muted: #5c6672;
+    --syt-border: #dfe5ee;
+    --syt-accent: #0b6b5b;
+    --syt-accent-2: #d17a22;
+    --syt-soft: #eef2f6;
+    --syt-danger: #b33a3a;
+
+    font-family: "Manrope", sans-serif;
+    background: linear-gradient(180deg, #f7f9fc 0%, #eef2f7 100%);
+    border: 1px solid var(--syt-border);
+    border-radius: 16px;
+    padding: 16px;
+    color: var(--syt-ink);
+    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
+}
+
+.syt-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.syt-date-nav,
+.syt-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.syt-date-btn,
+.syt-filter-btn {
+    border: 1px solid var(--syt-border);
+    background: var(--syt-card);
+    color: var(--syt-ink);
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.syt-date-btn:hover,
+.syt-filter-btn:hover {
+    border-color: var(--syt-accent);
+    color: var(--syt-accent);
+}
+
+.syt-date-btn.is-active,
+.syt-filter-btn.is-active {
+    background: var(--syt-accent);
+    color: #ffffff;
+    border-color: var(--syt-accent);
+}
+
+.syt-status {
+    min-height: 22px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--syt-muted);
+}
+
+.syt-status .syt-error {
+    color: var(--syt-danger);
+    font-weight: 600;
+}
+
+.syt-status .syt-loading {
+    color: var(--syt-accent);
+}
+
+.syt-table-wrap {
+    background: var(--syt-card);
+    border-radius: 12px;
+    border: 1px solid var(--syt-border);
+    overflow-x: auto;
+}
+
+.syt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.syt-table thead th {
+    text-align: left;
+    padding: 12px;
+    background: var(--syt-soft);
+    color: var(--syt-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+}
+
+.syt-table tbody td {
+    padding: 12px;
+    border-top: 1px solid var(--syt-border);
+    vertical-align: top;
+}
+
+.syt-time {
+    width: 90px;
+}
+
+.syt-time-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(11, 107, 91, 0.12);
+    color: var(--syt-accent);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.syt-sport-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 12px;
+    color: #ffffff;
+    background: var(--syt-accent-2);
+}
+
+.syt-sport-badge.sport-futbol { background: #0b6b5b; }
+.syt-sport-badge.sport-basketbol { background: #b45309; }
+.syt-sport-badge.sport-voleybol { background: #2563eb; }
+.syt-sport-badge.sport-tenis { background: #16a34a; }
+.syt-sport-badge.sport-boks { background: #a21caf; }
+.syt-sport-badge.sport-hentbol { background: #0ea5a4; }
+
+.syt-match-link {
+    color: var(--syt-ink);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.syt-match-link:hover {
+    color: var(--syt-accent);
+}
+
+.syt-league {
+    color: var(--syt-muted);
+}
+
+.syt-channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.syt-channel-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--syt-soft);
+    color: var(--syt-ink);
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.syt-channel-badge.is-muted {
+    background: #f0f0f0;
+    color: var(--syt-muted);
+}
+
+.syt-empty td {
+    text-align: center;
+    color: var(--syt-muted);
+}
+
+.syt-source {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--syt-muted);
+}
+
+.syt-source a {
+    color: var(--syt-accent);
+    text-decoration: none;
+}
+
+.syt-source a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .syt-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .syt-table thead {
+        display: none;
+    }
+
+    .syt-table,
+    .syt-table tbody,
+    .syt-table tr,
+    .syt-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .syt-table tbody tr {
+        border-bottom: 1px solid var(--syt-border);
+        padding: 10px 12px;
+    }
+
+    .syt-table tbody td {
+        border: none;
+        padding: 6px 0;
+    }
+
+    .syt-time {
+        width: auto;
+    }
+}
