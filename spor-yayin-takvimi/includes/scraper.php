@@ -9,7 +9,7 @@ function syt_scrape($date) {
 
     $response = wp_remote_get($url, array(
         'timeout' => 10,
-        'user-agent' => 'WordPress; Spor Yayın Takvimi',
+        'user-agent' => 'WordPress; Sporkulis Yayın Takvimi',
     ));
 
     if (is_wp_error($response)) {

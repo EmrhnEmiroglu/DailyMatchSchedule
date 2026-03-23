@@ -129,7 +129,7 @@ Eklenti, WordPress **Transient API** üzerinden önbellek yönetimi yapar.
 
 ## Yönetim Paneli
 
-**WordPress → Ayarlar → Spor Yayın Takvimi**
+**WordPress → Ayarlar → Sporkulis Yayın Takvimi**
 
 | Ayar | Açıklama |
 |---|---|

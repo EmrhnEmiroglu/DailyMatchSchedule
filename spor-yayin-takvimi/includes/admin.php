@@ -6,8 +6,8 @@ if (!defined('ABSPATH')) {
 
 function syt_admin_menu() {
     add_options_page(
-        'Spor Yayın Takvimi',
-        'Spor Yayın Takvimi',
+        'Sporkulis Yayın Takvimi',
+        'Sporkulis Yayın Takvimi',
         'manage_options',
         'syt-settings',
         'syt_admin_page'
@@ -60,8 +60,10 @@ function syt_sanitize_categories($value) {
     }
 
     $value = wp_unslash($value);
-    $parts = preg_split('/
-||
+    $parts = preg_split('/
+
+|
+|
 |,|;/', $value);
     $clean = array();
 
@@ -129,7 +131,7 @@ function syt_admin_page() {
     <div class="wrap syt-admin-wrap">
         <div class="syt-admin-hero">
             <div>
-                <h1>Spor Yayın Takvimi</h1>
+                <h1>Sporkulis Yayın Takvimi</h1>
                 <p>Yayın verisini yönetmek ve görüntüyü özelleştirmek için aşağıdaki ayarları kullanın.</p>
             </div>
             <span class="syt-admin-tag">v<?php echo esc_html(SYT_VERSION); ?></span>
