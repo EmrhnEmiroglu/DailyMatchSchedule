@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Spor Yayın Takvimi
  * Description: sporekrani.com günlük spor yayın takvimini WordPress sayfalarında gösterir.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: EmrhnEmiroglu
  * License: GPL-2.0+
  * Text Domain: spor-yayin-takvimi
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('SYT_VERSION', '1.0.0');
+define('SYT_VERSION', '1.0.1');
 define('SYT_PATH', plugin_dir_path(__FILE__));
 define('SYT_URL', plugin_dir_url(__FILE__));
 
@@ -34,8 +34,13 @@ function syt_deactivate() {
 register_deactivation_hook(__FILE__, 'syt_deactivate');
 
 function syt_register_assets() {
-    wp_register_style('syt-style', SYT_URL . 'assets/css/style.css', array(), SYT_VERSION);
-    wp_register_script('syt-script', SYT_URL . 'assets/js/script.js', array('jquery'), SYT_VERSION, true);
+    $css_path = SYT_PATH . 'assets/css/style.css';
+    $js_path = SYT_PATH . 'assets/js/script.js';
+    $css_version = file_exists($css_path) ? filemtime($css_path) : SYT_VERSION;
+    $js_version = file_exists($js_path) ? filemtime($js_path) : SYT_VERSION;
+
+    wp_register_style('syt-style', SYT_URL . 'assets/css/style.css', array(), $css_version);
+    wp_register_script('syt-script', SYT_URL . 'assets/js/script.js', array('jquery'), $js_version, true);
 }
 add_action('wp_enqueue_scripts', 'syt_register_assets');
 
