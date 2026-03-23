@@ -51,9 +51,22 @@
     function displayLeague(league) {
         var normalized = normalizeKey(league);
         if (normalized === 'spor programi') {
-            return 'Spor Programım';
+            return 'Spor Programı';
         }
         return league || '';
+    }
+
+    function displayChannel(channel) {
+        var value = String(channel || '').trim();
+        if (!value) {
+            return '';
+        }
+
+        value = value.replace(/yildizi/gi, 'Yıldızı');
+        value = value.replace(/yildiz/gi, 'Yıldız');
+        value = value.replace(/spor programi/gi, 'Spor Programı');
+
+        return value;
     }
 
     function isNoBroadcast(channel) {
@@ -228,7 +241,7 @@
                         if (isNoBroadcast(channel)) {
                             classes += ' is-muted';
                         }
-                        channelsHtml += '<span class="' + classes + '">' + escapeHtml(channel) + '</span>';
+                        channelsHtml += '<span class="' + classes + '">' + escapeHtml(displayChannel(channel)) + '</span>';
                     });
                 }
                 $tr.append('<td class="syt-channels">' + channelsHtml + '</td>');

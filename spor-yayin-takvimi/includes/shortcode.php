@@ -152,10 +152,23 @@ function syt_sport_emoji($sport_slug) {
 function syt_display_league($league) {
     $normalized = syt_normalize_key($league);
     if ($normalized === 'spor programi') {
-        return 'Spor Programım';
+        return 'Spor Programı';
     }
 
     return $league;
+}
+
+function syt_display_channel($channel) {
+    $channel = trim((string) $channel);
+    if ($channel === '') {
+        return $channel;
+    }
+
+    $channel = preg_replace('/yildizi/i', 'Yıldızı', $channel);
+    $channel = preg_replace('/yildiz/i', 'Yıldız', $channel);
+    $channel = preg_replace('/spor programi/i', 'Spor Programı', $channel);
+
+    return $channel;
 }
 
 function syt_get_category_items() {
@@ -261,7 +274,7 @@ function syt_render_matches_table($matches, $categories = array()) {
                     if (syt_is_no_broadcast($channel)) {
                         $classes .= ' is-muted';
                     }
-                    $html .= '<span class="' . esc_attr($classes) . '">' . esc_html($channel) . '</span>';
+                    $html .= '<span class="' . esc_attr($classes) . '">' . esc_html(syt_display_channel($channel)) . '</span>';
                 }
             }
             $html .= '</td>';
