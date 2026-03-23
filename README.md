@@ -1,137 +1,137 @@
-# Spor Yay?n Takvimi (WordPress Eklentisi)
+# Spor Yayın Takvimi (WordPress Eklentisi)
 
-Sporekrani.com verisini ?ekip WordPress ?zerinde g?nl?k spor yay?n ak???n? ??k ve h?zl? bir ?ekilde g?stermeyi ama?layan bir eklenti.
+Sporekrani.com verisini çekip WordPress üzerinde günlük spor yayın akışını şık ve hızlı bir şekilde göstermeyi amaçlayan bir eklenti.
 
-## ??erik
+## İçerik
 
-- [?zellikler](#?zellikler)
+- [Özellikler](#özellikler)
 - [Gereksinimler](#gereksinimler)
 - [Kurulum](#kurulum)
-- [Kullan?m](#kullan?m)
-- [Filtre Mant??? ve Kategoriler](#filtre-mant???-ve-kategoriler)
-- [?nbellek](#?nbellek)
-- [Y?netim Paneli](#y?netim-paneli)
-- [Veri Kayna??](#veri-kayna??)
-- [Dizin Yap?s?](#dizin-yap?s?)
+- [Kullanım](#kullanım)
+- [Filtre Mantığı ve Kategoriler](#filtre-mantığı-ve-kategoriler)
+- [Önbellek](#önbellek)
+- [Yönetim Paneli](#yönetim-paneli)
+- [Veri Kaynağı](#veri-kaynağı)
+- [Dizin Yapısı](#dizin-yapısı)
 - [Sorun Giderme](#sorun-giderme)
-- [Geli?tirme](#geli?tirme)
+- [Geliştirme](#geliştirme)
 - [Lisans](#lisans)
 
-## ?zellikler
+## Özellikler
 
-- G?nl?k yay?n listesi, tek k?sa kod ile sayfada g?r?n?r.
-- Bug?n ve Yar?n aras?nda AJAX ile h?zl? ge?i?.
-- Kategori filtreleri ve tema rengi `#ef7123` ile modern aray?z.
-- Program i?erikleri TV simgesiyle belirginle?tirilir.
-- T?rk?e karakter d?n???mleri (?r. `Y?ld?z`, `Program?`) d?zeltilir.
-- D?? siteye y?nlendirme yoktur; sat?ra t?klamak sayfadan ??karmaz.
-- Transient API ile ?nbellek ve performans optimizasyonu.
+- Günlük yayın listesi, tek kısa kod ile sayfada görünür.
+- Bugün ve Yarın arasında AJAX ile hızlı geçiş.
+- Kategori filtreleri ve tema rengi `#ef7123` ile modern arayüz.
+- Program içerikleri TV simgesiyle belirginleştirilir.
+- Türkçe karakter dönüşümleri (ör. `Yıldız`, `Programı`) düzeltilir.
+- Dış siteye yönlendirme yoktur; satıra tıklamak sayfadan çıkarmaz.
+- Transient API ile önbellek ve performans optimizasyonu.
 
 ## Gereksinimler
 
-- WordPress 5.8+ (?nerilen)
-- PHP 7.4+ (?nerilen)
-- `ext-dom` ve `ext-libxml` PHP eklentileri (HTML parse i?in)
-- Sunucudan `https://www.sporekrani.com` adresine ??k?? izni
+- WordPress 5.8+ (önerilen)
+- PHP 7.4+ (önerilen)
+- `ext-dom` ve `ext-libxml` PHP eklentileri (HTML parse için)
+- Sunucudan `https://www.sporekrani.com` adresine çıkış izni
 
 ## Kurulum
 
-1. WordPress Y?netim Paneli > Eklentiler > Yeni Ekle > Eklenti Y?kle yolunu izleyin.
-1. `spor-yayin-takvimi-install.zip` dosyas?n? y?kleyip etkinle?tirin.
-1. Klas?r olarak kurmak isterseniz `spor-yayin-takvimi` dizinini `wp-content/plugins/` alt?na kopyalay?n.
+1. WordPress Yönetim Paneli > Eklentiler > Yeni Ekle > Eklenti Yükle yolunu izleyin.
+1. `spor-yayin-takvimi-install.zip` dosyasını yükleyip etkinleştirin.
+1. Klasör olarak kurmak isterseniz `spor-yayin-takvimi` dizinini `wp-content/plugins/` altına kopyalayın.
 
-## Kullan?m
+## Kullanım
 
-Sayfa veya yaz? i?ine ?u k?sa kodu ekleyin:
+Sayfa veya yazı içine şu kısa kodu ekleyin:
 
 ```text
 [spor_yayin_takvimi]
 ```
 
-?ste?e ba?l? parametreler:
+İsteğe bağlı parametreler:
 
 ```text
 [spor_yayin_takvimi date="2026-03-23" sport="Futbol"]
 ```
 
-- `date`: `YYYY-MM-DD` format?nda ba?lang?? tarihi
-- `sport`: Varsay?lan aktif filtre (?rn. `Futbol`)
+- `date`: `YYYY-MM-DD` formatında başlangıç tarihi
+- `sport`: Varsayılan aktif filtre (örn. `Futbol`)
 
-## Filtre Mant??? ve Kategoriler
+## Filtre Mantığı ve Kategoriler
 
-Varsay?lan kategoriler:
+Varsayılan kategoriler:
 
-- Futbol ?
-- Basketbol ??
-- Voelybol ??
-- Tenis ??
+- Futbol ⚽
+- Basketbol 🏀
+- Voelybol 🏐
+- Tenis 🎾
 
-Program i?erikleri otomatik olarak `Programlar` kategorisine d??er ve TV simgesiyle g?sterilir.
+Program içerikleri otomatik olarak `Programlar` kategorisine düşer ve TV simgesiyle gösterilir.
 
-Kategori filtrelerinin do?ru ?al??mas? i?in kategori adlar?n?n veri kayna??ndaki spor adlar?yla uyumlu olmas? ?nerilir.
+Kategori filtrelerinin doğru çalışması için kategori adlarının veri kaynağındaki spor adlarıyla uyumlu olması önerilir.
 
-## ?nbellek
+## Önbellek
 
-- Veri, WordPress Transient API ile saklan?r.
-- Varsay?lan s?re 3600 saniyedir.
-- ?nbellek s?resi y?netim panelinden de?i?tirilebilir.
-- ?T?m ?nbelle?i temizle? butonu ile tek t?kla s?f?rlanabilir.
+- Veri, WordPress Transient API ile saklanır.
+- Varsayılan süre 3600 saniyedir.
+- Önbellek süresi yönetim panelinden değiştirilebilir.
+- “Tüm önbelleği temizle” butonu ile tek tıkla sıfırlanabilir.
 
-## Y?netim Paneli
+## Yönetim Paneli
 
-WordPress > Ayarlar > Spor Yay?n Takvimi
+WordPress > Ayarlar > Spor Yayın Takvimi
 
 Ayarlar:
 
-- ?nbellek s?resi (saniye)
-- Varsay?lan spor filtresi
-- Kategori listesi (her sat?ra bir kategori)
-- T?m ?nbelle?i temizle
+- Önbellek süresi (saniye)
+- Varsayılan spor filtresi
+- Kategori listesi (her satıra bir kategori)
+- Tüm önbelleği temizle
 
-## Veri Kayna??
+## Veri Kaynağı
 
-Veri kayna??:
+Veri kaynağı:
 
 - `https://www.sporekrani.com/home/day/YYYY-MM-DD`
 
-Bu eklenti ba??ms?zd?r ve sporekrani.com ile resmi bir ba?lant?s? yoktur.
+Bu eklenti bağımsızdır ve sporekrani.com ile resmi bir bağlantısı yoktur.
 
-## Dizin Yap?s?
+## Dizin Yapısı
 
 ```text
 spor-yayin-takvimi/
-??? spor-yayin-takvimi.php
-??? includes/
-?   ??? scraper.php
-?   ??? cache.php
-?   ??? shortcode.php
-?   ??? admin.php
-??? assets/
-    ??? css/style.css
-    ??? js/script.js
+├── spor-yayin-takvimi.php
+├── includes/
+│   ├── scraper.php
+│   ├── cache.php
+│   ├── shortcode.php
+│   └── admin.php
+└── assets/
+    ├── css/style.css
+    └── js/script.js
 ```
 
 ## Sorun Giderme
 
-- Eklenti listede g?r?nm?yorsa zip?in k?k?nde `spor-yayin-takvimi/` klas?r? olmal?d?r.
-- T?rk?e karakterler bozuksa sunucu taraf?nda UTF-8 destekli PHP yap?land?rmas? oldu?undan emin olun.
-- Veri gelmiyorsa sunucunun d?? ba?lant? iznini ve `wp_remote_get()` ?a?r?lar?n? kontrol edin.
-- ?nbellek nedeniyle g?ncelleme gecikiyorsa y?netim panelinden ?nbelle?i temizleyin.
+- Eklenti listede görünmüyorsa zip’in kökünde `spor-yayin-takvimi/` klasörü olmalıdır.
+- Türkçe karakterler bozuksa sunucu tarafında UTF-8 destekli PHP yapılandırması olduğundan emin olun.
+- Veri gelmiyorsa sunucunun dış bağlantı iznini ve `wp_remote_get()` çağrılarını kontrol edin.
+- Önbellek nedeniyle güncelleme gecikiyorsa yönetim panelinden önbelleği temizleyin.
 
-## Geli?tirme
+## Geliştirme
 
-Paket olu?turmak i?in klas?r yap?s?n?n korunmas? gerekir. ?rnek PowerShell komutu:
+Paket oluşturmak için klasör yapısının korunması gerekir. Örnek PowerShell komutu:
 
 ```powershell
 python - <<'PY'
 import os, zipfile
-base = r"C:\\path\\to\\spor-yayin-takvimi"
-zip_path = r"C:\\path\\to\\spor-yayin-takvimi-install.zip"
+base = r"C:\path\to\spor-yayin-takvimi"
+zip_path = r"C:\path\to\spor-yayin-takvimi-install.zip"
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
     for root, dirs, files in os.walk(base):
         for name in files:
             full = os.path.join(root, name)
-            rel = os.path.relpath(full, os.path.dirname(base)).replace('\\\\', '/')
+            rel = os.path.relpath(full, os.path.dirname(base)).replace('\\', '/')
             zf.write(full, rel)
 PY
 ```
