@@ -2,8 +2,10 @@
 
 > WordPress için günlük spor yayın takvimi eklentisi.  
 
-![WordPress](https://img.shields.io/badge/WordPress-5.8+-21759B?logo=wordpress&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-7.4+-777BB4?logo=php&logoColor=white)
+![Kullanıcı Paneli](<img width="1107" height="483" alt="image" src="https://github.com/user-attachments/assets/690872de-e409-4979-b4fc-347b48cb2c1f" />
+)
+![Admin Paneli]<img width="1750" height="884" alt="image" src="https://github.com/user-attachments/assets/b4bb18cd-5c15-40ac-8117-9aea349465ac" />
+)
 ![Lisans](https://img.shields.io/badge/Lisans-GPL--2.0+-green)
 
 ---
