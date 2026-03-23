@@ -267,26 +267,7 @@
     }
 
     function matchesSearch(match, query) {
-        if (!query) {
-            return true;
-        }
-
-        var parts = [];
-        if (match.match) {
-            parts.push(match.match);
-        }
-        if (match.league) {
-            parts.push(match.league);
-        }
-        if (match.sport) {
-            parts.push(match.sport);
-        }
-        if (match.channels && match.channels.length) {
-            parts = parts.concat(match.channels);
-        }
-
-        var haystack = normalizeQuery(parts.join(' '));
-        return haystack.indexOf(query) !== -1;
+        return true;
     }
 
     function applyFilters(matches, categories, activeSport, searchQuery) {
@@ -314,23 +295,14 @@
             matches: data.matches || [],
             categories: data.categories || [],
             activeSport: data.activeSport || 'all',
-            searchQuery: normalizeQuery(data.searchQuery || '')
+            searchQuery: ''
         };
 
         state.activeSport = buildFilterButtons($wrap, state.categories, state.matches, state.activeSport);
         var filtered = applyFilters(state.matches, state.categories, state.activeSport, state.searchQuery);
         renderMatches($wrap, filtered, state.categories, getEmptyMessage(state));
 
-        var $searchInput = $wrap.find('.syt-search-input');
-        if ($searchInput.length && data.searchQuery) {
-            $searchInput.val(data.searchQuery);
-        }
-
-        $wrap.on('input', '.syt-search-input', function () {
-            state.searchQuery = normalizeQuery($(this).val());
-            var nextFiltered = applyFilters(state.matches, state.categories, state.activeSport, state.searchQuery);
-            renderMatches($wrap, nextFiltered, state.categories, getEmptyMessage(state));
-        });
+        // Arama filtresi bu sürümde devre dışı.
 
         $wrap.on('click', '.syt-filter-btn', function () {
             var $btn = $(this);

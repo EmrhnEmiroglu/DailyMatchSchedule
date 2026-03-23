@@ -144,6 +144,7 @@ function syt_sport_emoji($sport_slug) {
         'voleybol' => '🏐',
         'voelybol' => '🏐',
         'tenis' => '🎾',
+        'programlar' => '📺',
     );
 
     return isset($map[$sport_slug]) ? $map[$sport_slug] : '';
@@ -300,7 +301,7 @@ function syt_shortcode($atts) {
 
     $sport = sanitize_text_field($atts['sport']);
     $default_sport = sanitize_text_field(get_option('syt_default_sport', ''));
-    $search_enabled = (bool) get_option('syt_enable_search', 1);
+    $search_enabled = false;
 
     $matches = syt_get_matches($date);
     $error_message = '';

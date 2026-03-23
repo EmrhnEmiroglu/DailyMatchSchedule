@@ -71,13 +71,7 @@ function syt_settings_init() {
         'syt_settings_section'
     );
 
-    add_settings_field(
-        'syt_enable_search',
-        'Arama filtresi',
-        'syt_enable_search_field',
-        'syt_settings',
-        'syt_settings_section'
-    );
+    // Arama filtresi bu sürümde devre dışı bırakıldı.
 }
 add_action('admin_init', 'syt_settings_init');
 
@@ -129,10 +123,7 @@ function syt_categories_field() {
     echo '<p class="description">Her satıra bir kategori yazın. Önerilen: Futbol, Basketbol, Voleybol, Tenis. Filtrelerin çalışması için isimler veri kaynağındaki spor adlarıyla uyumlu olmalı.</p>';
 }
 
-function syt_enable_search_field() {
-    $value = (int) get_option('syt_enable_search', 1);
-    echo '<label><input type="checkbox" name="syt_enable_search" value="1" ' . checked(1, $value, false) . ' /> Arama kutusunu göster</label>';
-}
+// Arama filtresi bu sürümde devre dışı bırakıldı.
 
 function syt_handle_clear_cache() {
     if (!current_user_can('manage_options')) {
