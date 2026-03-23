@@ -2,11 +2,15 @@
 
 > WordPress için günlük spor yayın takvimi eklentisi.  
 
-![Kullanıcı Paneli]<img width="1107" height="483" alt="image" src="https://github.com/user-attachments/assets/690872de-e409-4979-b4fc-347b48cb2c1f" />
-)
-![Admin Paneli]<img width="1750" height="884" alt="image" src="https://github.com/user-attachments/assets/b4bb18cd-5c15-40ac-8117-9aea349465ac" />
-)
-![Lisans](https://img.shields.io/badge/Lisans-GPL--2.0+-green)
+## Ekran Görüntüleri
+
+### Admin Paneli
+![Admin Paneli Görseli]<img width="1072" height="858" alt="image" src="https://github.com/user-attachments/assets/f35e0305-ce62-4fa4-badf-1a93f1da1bc5" />
+
+
+### Tablo Görünümü
+![Tablo Görünümü Görseli]<img width="1744" height="881" alt="image" src="https://github.com/user-attachments/assets/d811bc1d-6e8e-483a-b908-87505913cfc7" />
+
 
 ---
 
