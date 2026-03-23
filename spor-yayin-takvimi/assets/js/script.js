@@ -48,6 +48,14 @@
         return map[slug] || '';
     }
 
+    function displayLeague(league) {
+        var normalized = normalizeKey(league);
+        if (normalized === 'spor programi') {
+            return 'Spor Programım';
+        }
+        return league || '';
+    }
+
     function isNoBroadcast(channel) {
         if (!channel) {
             return false;
@@ -211,7 +219,7 @@
 
                 $tr.append('<td class="syt-match">' + escapeHtml(match.match || '') + '</td>');
 
-                $tr.append('<td class="syt-league">' + escapeHtml(match.league || '') + '</td>');
+                $tr.append('<td class="syt-league">' + escapeHtml(displayLeague(match.league)) + '</td>');
 
                 var channelsHtml = '';
                 if (match.channels && match.channels.length) {

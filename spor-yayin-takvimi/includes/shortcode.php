@@ -149,6 +149,15 @@ function syt_sport_emoji($sport_slug) {
     return isset($map[$sport_slug]) ? $map[$sport_slug] : '';
 }
 
+function syt_display_league($league) {
+    $normalized = syt_normalize_key($league);
+    if ($normalized === 'spor programi') {
+        return 'Spor Programım';
+    }
+
+    return $league;
+}
+
 function syt_get_category_items() {
     $categories = syt_get_categories();
     $items = array();
@@ -243,7 +252,7 @@ function syt_render_matches_table($matches, $categories = array()) {
             $html .= esc_html($match_name);
             $html .= '</td>';
 
-            $html .= '<td class="syt-league">' . esc_html($league) . '</td>';
+            $html .= '<td class="syt-league">' . esc_html(syt_display_league($league)) . '</td>';
 
             $html .= '<td class="syt-channels">';
             if (!empty($channels)) {
