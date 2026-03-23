@@ -1,0 +1,122 @@
+/* Admin panel styling for Spor Yayin Takvimi */
+.syt-admin-wrap .syt-admin-hero {
+    background: #ffffff;
+    border: 1px solid #dcdcde;
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 10px 25px rgba(17, 24, 39, 0.06);
+}
+
+.syt-admin-wrap .syt-admin-hero h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.syt-admin-wrap .syt-admin-hero p {
+    margin: 6px 0 0;
+    color: #5f6b7a;
+}
+
+.syt-admin-tag {
+    background: #ef7123;
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.syt-admin-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 20px;
+}
+
+.syt-admin-card {
+    background: #ffffff;
+    border: 1px solid #dcdcde;
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.05);
+}
+
+.syt-admin-card h2 {
+    margin: 0 0 12px;
+    font-size: 18px;
+}
+
+.syt-admin-field {
+    margin-bottom: 16px;
+}
+
+.syt-admin-field:last-child {
+    margin-bottom: 0;
+}
+
+.syt-admin-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.syt-admin-field input[type="text"],
+.syt-admin-field input[type="number"],
+.syt-admin-field textarea {
+    width: 100%;
+    max-width: 100%;
+}
+
+.syt-admin-hint {
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.syt-admin-actions {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.syt-admin-aside .syt-admin-card {
+    margin-bottom: 20px;
+}
+
+.syt-admin-aside .syt-admin-card:last-child {
+    margin-bottom: 0;
+}
+
+.syt-shortcode-field {
+    width: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.syt-copy-status {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #1d7f3a;
+    min-height: 16px;
+}
+
+.syt-color-preview {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    margin-top: 8px;
+    background: #f4f6f9;
+}
+
+@media (max-width: 1000px) {
+    .syt-admin-grid {
+        grid-template-columns: 1fr;
+    }
+}

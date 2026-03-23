@@ -341,6 +341,11 @@ function syt_shortcode($atts) {
     $initial_sport_slug = $initial_sport === '' ? 'all' : syt_sport_slug($initial_sport);
 
     $categories = syt_get_category_items();
+    $bg_color = get_option('syt_background_color', '#f4f6f9');
+    $bg_color = sanitize_hex_color($bg_color);
+    if (!$bg_color) {
+        $bg_color = '#f4f6f9';
+    }
 
     $inline_data = array(
         'date' => $date,
@@ -372,7 +377,7 @@ function syt_shortcode($atts) {
 
     ob_start();
     ?>
-    <div class="syt-wrapper" data-instance="<?php echo esc_attr($instance_id); ?>" data-date="<?php echo esc_attr($date); ?>">
+    <div class="syt-wrapper" data-instance="<?php echo esc_attr($instance_id); ?>" data-date="<?php echo esc_attr($date); ?>" style="--syt-bg: <?php echo esc_attr($bg_color); ?>;">
         <div class="syt-header">
             <div class="syt-date-nav">
                 <button type="button" class="syt-date-btn <?php echo $date === $today ? 'is-active' : ''; ?>" data-date="<?php echo esc_attr($today); ?>">Bugün</button>

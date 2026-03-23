@@ -34,50 +34,25 @@ function syt_settings_init() {
         'default' => '',
     ));
 
-    register_setting('syt_settings', 'syt_enable_search', array(
-        'type' => 'boolean',
-        'sanitize_callback' => 'syt_sanitize_checkbox',
-        'default' => 1,
+    register_setting('syt_settings', 'syt_background_color', array(
+        'type' => 'string',
+        'sanitize_callback' => 'sanitize_hex_color',
+        'default' => '#f4f6f9',
     ));
-
-    add_settings_section(
-        'syt_settings_section',
-        'Genel Ayarlar',
-        '__return_false',
-        'syt_settings'
-    );
-
-    add_settings_field(
-        'syt_cache_duration',
-        'Önbellek süresi (saniye)',
-        'syt_cache_duration_field',
-        'syt_settings',
-        'syt_settings_section'
-    );
-
-    add_settings_field(
-        'syt_default_sport',
-        'Varsayılan spor filtresi',
-        'syt_default_sport_field',
-        'syt_settings',
-        'syt_settings_section'
-    );
-
-    add_settings_field(
-        'syt_categories',
-        'Kategori listesi',
-        'syt_categories_field',
-        'syt_settings',
-        'syt_settings_section'
-    );
-
-    // Arama filtresi bu sürümde devre dışı bırakıldı.
 }
 add_action('admin_init', 'syt_settings_init');
 
-function syt_sanitize_checkbox($value) {
-    return $value ? 1 : 0;
+function syt_admin_enqueue($hook) {
+    if ($hook !== 'settings_page_syt-settings') {
+        return;
+    }
+
+    wp_enqueue_style('wp-color-picker');
+    wp_enqueue_script('wp-color-picker');
+    wp_enqueue_style('syt-admin', SYT_URL . 'assets/css/admin.css', array(), SYT_VERSION);
+    wp_enqueue_script('syt-admin', SYT_URL . 'assets/js/admin.js', array('jquery', 'wp-color-picker'), SYT_VERSION, true);
 }
+add_action('admin_enqueue_scripts', 'syt_admin_enqueue');
 
 function syt_sanitize_categories($value) {
     if (!is_string($value)) {
@@ -85,7 +60,9 @@ function syt_sanitize_categories($value) {
     }
 
     $value = wp_unslash($value);
-    $parts = preg_split('/\r\n|\r|\n|,|;/', $value);
+    $parts = preg_split('/
+||
+|,|;/', $value);
     $clean = array();
 
     foreach ($parts as $part) {
@@ -99,31 +76,35 @@ function syt_sanitize_categories($value) {
         $clean = syt_default_categories();
     }
 
-    return implode("\n", $clean);
+    return implode("
+", $clean);
 }
 
 function syt_cache_duration_field() {
     $value = (int) get_option('syt_cache_duration', 3600);
-    echo '<input type="number" min="60" step="60" name="syt_cache_duration" value="' . esc_attr($value) . '" />';
+    echo '<input id="syt_cache_duration" type="number" min="60" step="60" name="syt_cache_duration" value="' . esc_attr($value) . '" />';
 }
 
 function syt_default_sport_field() {
     $value = get_option('syt_default_sport', '');
-    echo '<input type="text" name="syt_default_sport" value="' . esc_attr($value) . '" placeholder="Örn: Futbol" />';
-    echo '<p class="description">Boş bırakılırsa varsayılan filtre "Tümü" olur.</p>';
+    echo '<input id="syt_default_sport" type="text" name="syt_default_sport" value="' . esc_attr($value) . '" placeholder="Örn: Futbol" />';
 }
 
 function syt_categories_field() {
     $value = get_option('syt_categories', '');
     if ($value === '') {
-        $value = implode("\n", syt_default_categories());
+        $value = implode("
+", syt_default_categories());
     }
 
-    echo '<textarea name="syt_categories" rows="5" cols="30" class="large-text code">' . esc_textarea($value) . '</textarea>';
-    echo '<p class="description">Her satıra bir kategori yazın. Önerilen: Futbol, Basketbol, Voleybol, Tenis. Filtrelerin çalışması için isimler veri kaynağındaki spor adlarıyla uyumlu olmalı.</p>';
+    echo '<textarea id="syt_categories" name="syt_categories" rows="6" class="large-text code">' . esc_textarea($value) . '</textarea>';
 }
 
-// Arama filtresi bu sürümde devre dışı bırakıldı.
+function syt_background_color_field() {
+    $value = get_option('syt_background_color', '#f4f6f9');
+    $value = $value ? $value : '#f4f6f9';
+    echo '<input id="syt_background_color" type="text" class="syt-color-field" data-preview="#syt-bg-preview" name="syt_background_color" value="' . esc_attr($value) . '" />';
+}
 
 function syt_handle_clear_cache() {
     if (!current_user_can('manage_options')) {
@@ -145,27 +126,97 @@ function syt_admin_page() {
         echo '<div class="notice notice-success is-dismissible"><p>Önbellek temizlendi.</p></div>';
     }
     ?>
-    <div class="wrap">
-        <h1>Spor Yayın Takvimi</h1>
-        <form method="post" action="options.php">
-            <?php
-            settings_fields('syt_settings');
-            do_settings_sections('syt_settings');
-            submit_button();
-            ?>
-        </form>
+    <div class="wrap syt-admin-wrap">
+        <div class="syt-admin-hero">
+            <div>
+                <h1>Spor Yayın Takvimi</h1>
+                <p>Yayın verisini yönetmek ve görüntüyü özelleştirmek için aşağıdaki ayarları kullanın.</p>
+            </div>
+            <span class="syt-admin-tag">v<?php echo esc_html(SYT_VERSION); ?></span>
+        </div>
 
-        <hr />
+        <div class="syt-admin-grid">
+            <div class="syt-admin-main">
+                <form method="post" action="options.php">
+                    <?php settings_fields('syt_settings'); ?>
 
-        <h2>Önbellek</h2>
-        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-            <?php wp_nonce_field('syt_clear_cache'); ?>
-            <input type="hidden" name="action" value="syt_clear_cache" />
-            <?php submit_button('Tüm önbelleği temizle', 'secondary'); ?>
-        </form>
+                    <div class="syt-admin-card">
+                        <h2>Genel Ayarlar</h2>
 
-        <h2>Kullanim</h2>
-        <p><code>[spor_yayin_takvimi]</code></p>
+                        <div class="syt-admin-field">
+                            <label for="syt_cache_duration">Önbellek süresi (saniye)</label>
+                            <?php syt_cache_duration_field(); ?>
+                            <p class="syt-admin-hint">Veri kaynağına yapılan istekleri azaltır.</p>
+                        </div>
+
+                        <div class="syt-admin-field">
+                            <label for="syt_default_sport">Varsayılan spor filtresi</label>
+                            <?php syt_default_sport_field(); ?>
+                            <p class="syt-admin-hint">Boş bırakılırsa varsayılan filtre "Tümü" olur.</p>
+                        </div>
+
+                        <div class="syt-admin-actions">
+                            <?php submit_button('Ayarları Kaydet', 'primary', 'submit', false); ?>
+                        </div>
+                    </div>
+
+                    <div class="syt-admin-card">
+                        <h2>Görünüm</h2>
+
+                        <div class="syt-admin-field">
+                            <label for="syt_background_color">Arka plan rengi</label>
+                            <?php syt_background_color_field(); ?>
+                            <div id="syt-bg-preview" class="syt-color-preview"></div>
+                            <p class="syt-admin-hint">Eklenti kutusunun arka plan rengi değiştirilebilir.</p>
+                        </div>
+
+                        <p class="syt-admin-hint">Ana tema rengi sabittir: #ef7123</p>
+                    </div>
+
+                    <div class="syt-admin-card">
+                        <h2>Kategori Yönetimi</h2>
+
+                        <div class="syt-admin-field">
+                            <label for="syt_categories">Kategori listesi</label>
+                            <?php syt_categories_field(); ?>
+                            <p class="syt-admin-hint">Her satıra bir kategori yazın. Önerilen: Futbol, Basketbol, Voleybol, Tenis.</p>
+                        </div>
+
+                        <div class="syt-admin-actions">
+                            <?php submit_button('Ayarları Kaydet', 'primary', 'submit', false); ?>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="syt-admin-aside">
+                <div class="syt-admin-card">
+                    <h2>Kısa Kod</h2>
+                    <p class="syt-admin-hint">Bu kısa kodu sayfa veya yazı içinde kullanın.</p>
+                    <input type="text" id="syt-shortcode" class="syt-shortcode-field" value="[spor_yayin_takvimi]" readonly />
+                    <div class="syt-admin-actions">
+                        <button class="button button-secondary syt-copy-btn" data-target="#syt-shortcode">Kopyala</button>
+                    </div>
+                    <div class="syt-copy-status"></div>
+                </div>
+
+                <div class="syt-admin-card">
+                    <h2>Önbellek</h2>
+                    <p class="syt-admin-hint">Yayınlar güncellenmediyse önbelleği temizleyin.</p>
+                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                        <?php wp_nonce_field('syt_clear_cache'); ?>
+                        <input type="hidden" name="action" value="syt_clear_cache" />
+                        <?php submit_button('Tüm önbelleği temizle', 'secondary', 'submit', false); ?>
+                    </form>
+                </div>
+
+                <div class="syt-admin-card">
+                    <h2>İpuçları</h2>
+                    <p class="syt-admin-hint">İçerik görünmüyorsa önce önbelleği temizlemeyi deneyin.</p>
+                    <p class="syt-admin-hint">Kategori isimleri veri kaynağındaki spor adlarıyla uyumlu olmalıdır.</p>
+                </div>
+            </div>
+        </div>
     </div>
     <?php
 }

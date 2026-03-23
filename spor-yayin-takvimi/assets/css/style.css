@@ -13,7 +13,7 @@
     --syt-info: #ef7123;
 
     font-family: "Plus Jakarta Sans", sans-serif;
-    background: linear-gradient(180deg, #f9fafc 0%, #eef2f7 100%);
+    background: var(--syt-bg);
     border: 1px solid var(--syt-border);
     border-radius: 18px;
     padding: 18px;

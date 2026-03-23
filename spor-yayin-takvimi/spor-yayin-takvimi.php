@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Spor Yayın Takvimi
  * Description: sporekrani.com günlük spor yayın takvimini WordPress sayfalarında gösterir.
- * Version: 1.0.6
+ * Version: 1.0.7
  * Author: EmrhnEmiroglu
  * License: GPL-2.0+
  * Text Domain: spor-yayin-takvimi
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('SYT_VERSION', '1.0.6');
+define('SYT_VERSION', '1.0.7');
 define('SYT_PATH', plugin_dir_path(__FILE__));
 define('SYT_URL', plugin_dir_url(__FILE__));
 
